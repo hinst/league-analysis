@@ -1,5 +1,5 @@
 {
     "tasks": {
-        "run": "deno run --allow-read=./ ./src/app.ts"
+        "run": "deno run --allow-read=./ --allow-net=europe.api.riotgames.com ./src/app.ts"
     }
 }

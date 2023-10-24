@@ -1,6 +1,6 @@
-interface Config {
-    /** Navigate to https://developer.riotgames.com/ to get the token. It expires every 24 hours */
-    apiToken: string;
+export interface Config {
+    /** Navigate to https://developer.riotgames.com/ to get API key. It expires every 24 hours */
+    apiKey: string;
 
     /** How to find gameName and tagLine:
         By hovering over your profile icon in the League of Legends client app
