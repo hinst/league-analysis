@@ -10,4 +10,6 @@ export interface Config {
         #EUW is your tagLine. It should be specified without the '#' character. */
     gameName: string;
     tagLine: string;
+    /** The application will attempt to fill in the userId from gameName and tagLine if userId is not specified yet */
+    userId?: string;
 }

@@ -20,7 +20,13 @@ export class App {
         const configFile = Deno.readTextFileSync('./config.json');
         const config = JSON.parse(configFile) as Config;
         this.apiKey = config.apiKey;
-        this.userId = await this.readUserId(config.gameName, config.tagLine);
+        if (config.userId) {
+            this.userId = config.userId;
+        } else {
+            this.userId = await this.readUserId(config.gameName, config.tagLine);
+            config.userId = this.userId;
+            Deno.writeTextFileSync('./config.json', JSON.stringify(config, null, 2));
+        }
         this.readMatchInfoMap();
         if (this.updateEnabled) {
             const countOfUpdated = await this.updateMatchInfoMap();
