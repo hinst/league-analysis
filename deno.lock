@@ -1,0 +1,13 @@
+{
+  "version": "3",
+  "redirects": {
+    "https://deno.land/std/flags/mod.ts": "https://deno.land/std@0.204.0/flags/mod.ts",
+    "https://deno.land/std/http/http_status.ts": "https://deno.land/std@0.204.0/http/http_status.ts"
+  },
+  "remote": {
+    "https://deno.land/std@0.204.0/assert/assert.ts": "9a97dad6d98c238938e7540736b826440ad8c1c1e54430ca4c4e623e585607ee",
+    "https://deno.land/std@0.204.0/assert/assertion_error.ts": "4d0bde9b374dfbcbe8ac23f54f567b77024fb67dbb1906a852d67fe050d42f56",
+    "https://deno.land/std@0.204.0/flags/mod.ts": "0948466fc437f017f00c0b972a422b3dc3317a790bcf326429d23182977eaf9f",
+    "https://deno.land/std@0.204.0/http/http_status.ts": "8a7bcfe3ac025199ad804075385e57f63d055b2aed539d943ccc277616d6f932"
+  }
+}

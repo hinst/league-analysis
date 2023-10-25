@@ -1,43 +1,89 @@
 import { Config } from './config.ts';
+import { MatchInfoMap, MatchInfoRecord } from "./match.ts";
+import { Status } from "https://deno.land/std@0.204.0/http/http_status.ts";
+import { sleep } from "./sleep.ts";
 
-const HTTP_STATUS_RATE_LIMIT_EXCEEDED = 429;
-
-class App {
+export class App {
     apiUrl = 'https://europe.api.riotgames.com';
     apiKey = '';
-    userId = '';;
+    userId = '';
+    matchInfoMap: MatchInfoMap = {};
+    matchInfoMapFileName = 'matchInfoMap.json';
+
+    constructor(
+        private updateEnabled: boolean,
+        private printSummaryEnabled: boolean
+    ) {
+    }
 
     async run() {
         const configFile = Deno.readTextFileSync('./config.json');
         const config = JSON.parse(configFile) as Config;
         this.apiKey = config.apiKey;
         this.userId = await this.readUserId(config.gameName, config.tagLine);
-        console.log(await this.readAllMatches());
+        this.readMatchInfoMap();
+        if (this.updateEnabled)
+            await this.updateMatchInfoMap();
+        if (this.printSummaryEnabled)
+            this.printSummary();
+    }
+
+    private async updateMatchInfoMap() {
+        const allMatches = await this.readAllMatches();
+        for (const matchId of allMatches) {
+            if (!this.matchInfoMap[matchId]) {
+                console.log(matchId);
+                const matchInfo = await this.readMatch(matchId);
+                this.matchInfoMap[matchId] = matchInfo;
+            }
+        }
+        this.writeMatchInfoMap();
+    }
+
+    private printSummary() {
+        const allMatches = Object.values(this.matchInfoMap);
+        allMatches.sort((a, b) => a.info.gameCreation - b.info.gameCreation);
+        console.log('Stored matches [' + allMatches.length + ']');
+        if (allMatches.length > 0) {
+            console.log('  oldest: ' + new Date(allMatches[0].info.gameCreation));
+            console.log('  newest: ' + new Date(allMatches[allMatches.length - 1].info.gameCreation));
+        }
+    }
+
+    private readMatchInfoMap() {
+        const dataFiles = Deno.readDirSync('./data');
+        let matchInfoMapExists = false;
+        for (const dataFile of dataFiles)
+            if (dataFile.name === this.matchInfoMapFileName)
+                matchInfoMapExists = true;
+        if (matchInfoMapExists)
+            this.matchInfoMap = JSON.parse(Deno.readTextFileSync('./data/' + this.matchInfoMapFileName));
+    }
+
+    private writeMatchInfoMap() {
+        Deno.writeTextFileSync('./data/' + this.matchInfoMapFileName, JSON.stringify(this.matchInfoMap));
     }
 
     private async readUserId(gameName: string, tagLine: string) {
-        const response = await fetch(
+        const responseObject = await this.fetchFromApi(
             this.apiUrl + '/riot/account/v1/accounts/by-riot-id/' +
             encodeURIComponent(gameName) + '/' +
             encodeURIComponent(tagLine) +
             '?api_key=' + encodeURIComponent(this.apiKey)
         );
-        const responseObject = JSON.parse(await response.text());
         return responseObject.puuid;
     }
 
     /** Read matches also known as battles */
     private async readMatches(startIndex: number) {
         const count = 100;
-        const response = await fetch(
+        return await this.fetchFromApi(
             this.apiUrl + '/lol/match/v5/matches/by-puuid/' +
             encodeURIComponent(this.userId) + '/ids' +
             '?api_key=' + encodeURIComponent(this.apiKey) +
             '&start=' + encodeURIComponent(startIndex) +
             '&count=' + encodeURIComponent(count)
-        );
-        const responseObject = JSON.parse(await response.text());
-        return responseObject as string[];
+        ) as string[];
     }
 
     private async readAllMatches() {
@@ -55,13 +101,23 @@ class App {
     }
 
     private async readMatch(matchId: string) {
-        const response = await fetch(
+        return await this.fetchFromApi(
             this.apiUrl + '/lol/match/v5/matches/' + encodeURIComponent(matchId) +
             '?api_key=' + encodeURIComponent(this.apiKey)
-        );
-        const responseObject = JSON.parse(await response.text());
-        return responseObject;
+        ) as MatchInfoRecord;
+    }
+
+    private async fetchFromApi(url: string): Promise<any> {
+        const response = await fetch(url);
+        if (!response.ok) {
+            if (response.status === Status.Forbidden)
+                console.warn('Please provide a fresh RIOT API token from https://developer.riotgames.com');
+            if (response.status == Status.TooManyRequests) {
+                await sleep(1000);
+                return this.fetchFromApi(url);
+            }
+            throw new Error(response.statusText);
+        }
+        return response.json();
     }
 }
-
-new App().run();

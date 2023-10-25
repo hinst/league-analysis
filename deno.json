@@ -1,5 +1,5 @@
 {
     "tasks": {
-        "run": "deno run --allow-read=./config.json,/data  --allow-write=./config.json,./data --allow-net=europe.api.riotgames.com ./src/app.ts"
+        "run": "deno run --allow-read=./config.json,./data  --allow-write=./config.json,./data --allow-net=europe.api.riotgames.com ./src/main.ts"
     }
 }
