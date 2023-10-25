@@ -54,9 +54,11 @@ export class App {
             console.log('  newest: ' + new Date(allMatches[allMatches.length - 1].info.gameCreation));
         }
         const champions = findChampions(allMatches);
-        const yourChampions = findChampions(allMatches, this.userId);
         console.log('Champions [' + champions.length + ']');
-        console.log('  your champions [' + yourChampions.length + ']');
+        const yourChampions = findChampions(allMatches, this.userId);
+        console.log('Your champions: ');
+        for (const championName in yourChampions)
+            console.log('  ' + championName, yourChampions[championName]);
     }
 
     private readMatchInfoMap() {

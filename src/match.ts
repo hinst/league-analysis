@@ -22,11 +22,10 @@ export interface MatchParticipantInfo {
 }
 
 export function findChampions(records: MatchInfoRecord[], userId = '') {
-    const champions = new Set<string>();
-    for (const info of records) {
+    const champions: Record<string, number> = {};
+    for (const info of records)
         for (const participant of info.info.participants)
             if (userId.length === 0 || participant.puuid === userId)
-                champions.add(participant.championName);
-    }
-    return Array.from(champions);
+                champions[participant.championName] = (champions[participant.championName] || 0) + 1;
+    return champions;
 }
