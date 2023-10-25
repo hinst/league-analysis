@@ -22,22 +22,27 @@ export class App {
         this.apiKey = config.apiKey;
         this.userId = await this.readUserId(config.gameName, config.tagLine);
         this.readMatchInfoMap();
-        if (this.updateEnabled)
-            await this.updateMatchInfoMap();
+        if (this.updateEnabled) {
+            const countOfUpdated = await this.updateMatchInfoMap();
+            console.log('Updated [' + countOfUpdated + ']');
+        }
         if (this.printSummaryEnabled)
             this.printSummary();
     }
 
     private async updateMatchInfoMap() {
         const allMatches = await this.readAllMatches();
+        let countOfUpdated = 0;
         for (const matchId of allMatches) {
             if (!this.matchInfoMap[matchId]) {
                 console.log(matchId);
                 const matchInfo = await this.readMatch(matchId);
                 this.matchInfoMap[matchId] = matchInfo;
+                countOfUpdated += 1;
             }
         }
         this.writeMatchInfoMap();
+        return countOfUpdated;
     }
 
     private printSummary() {
