@@ -1,7 +1,7 @@
 import { Config } from './config.ts';
-import { MatchInfoMap, MatchInfoRecord, findChampions } from "./match.ts";
-import { Status } from "https://deno.land/std@0.204.0/http/http_status.ts";
-import { sleep } from "./sleep.ts";
+import { MatchInfoMap, MatchInfoRecord, findChampions } from './match.ts';
+import { Status } from 'https://deno.land/std@0.204.0/http/http_status.ts';
+import { sleep } from './sleep.ts';
 
 export class App {
     apiUrl = 'https://europe.api.riotgames.com';
