@@ -120,7 +120,7 @@ export class App {
             encodeURIComponent(gameName) + '/' +
             encodeURIComponent(tagLine) +
             '?api_key=' + encodeURIComponent(this.apiKey)
-        );
+        ) as { puuid: string };
         return responseObject.puuid;
     }
 
@@ -157,7 +157,7 @@ export class App {
         ) as MatchInfoRecord;
     }
 
-    private async fetchFromApi(url: string): Promise<any> {
+    private async fetchFromApi<T>(url: string): Promise<T> {
         const response = await fetch(url);
         if (!response.ok) {
             if (response.status === Status.Forbidden)
