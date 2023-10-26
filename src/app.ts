@@ -189,11 +189,11 @@ export class App {
                     const isAlly = participant.teamId === playerParticipant.teamId;
                     if (isAlly) {
                         winRateItem.allyInfo.matchCount += 1;
-                        if (participant.win)
+                        if (playerParticipant.win)
                             winRateItem.allyInfo.victoryCount += 1;
                     } else {
                         winRateItem.enemyInfo.matchCount += 1;
-                        if (participant.win)
+                        if (playerParticipant.win)
                             winRateItem.enemyInfo.victoryCount += 1;
                     }
                 }
