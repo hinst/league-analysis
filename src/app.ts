@@ -79,9 +79,22 @@ export class App {
         if (championName) {
             console.log(championName + ' [' + yourChampions[championName] + ']');
             const stats = this.buildStats(championName);
-            for (const stat of stats) {
-                console.log(stat.toString());
-            }
+            const bestAllies = ChampionWinRateInfo.sortTop(stats, true, false);
+            console.log('Best allies: ');
+            for (const bestAlly of bestAllies.slice(0, 5))
+                console.log('  ' + bestAlly.toString());
+            const worstAllies = ChampionWinRateInfo.sortTop(stats, true, true);
+            console.log('Worst allies: ');
+            for (const worstAlly of worstAllies.slice(0, 5))
+                console.log('  ' + worstAlly.toString());
+            const easiestEnemies = ChampionWinRateInfo.sortTop(stats, false, false);
+            console.log('Easiest enemies: ');
+            for (const easiestEnemy of easiestEnemies.slice(0, 5))
+                console.log('  ' + easiestEnemy.toString());
+            const hardestEnemies = ChampionWinRateInfo.sortTop(stats, false, true);
+            console.log('Hardest enemies: ');
+            for (const hardestEnemy of hardestEnemies.slice(0, 5))
+                console.log('  ' + hardestEnemy.toString());
         } else {
             console.warn('Champion not found: ' + championNameInput);
         }
