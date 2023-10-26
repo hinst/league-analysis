@@ -1,7 +1,9 @@
 import { Config } from './config.ts';
-import { MatchInfoMap, MatchInfoRecord, findChampions } from './match.ts';
+import { MatchInfoMap, MatchInfoRecord, MatchParticipantInfo, findChampions } from './match.ts';
 import { Status } from 'https://deno.land/std@0.204.0/http/http_status.ts';
 import { sleep } from './sleep.ts';
+import { findByEditingDistance } from './editingDistance.ts';
+import { ChampionWinRateInfo } from './championWinRate.ts';
 
 export class App {
     apiUrl = 'https://europe.api.riotgames.com';
@@ -12,7 +14,8 @@ export class App {
 
     constructor(
         private updateEnabled: boolean,
-        private printSummaryEnabled: boolean
+        private printSummaryEnabled: boolean,
+        private championNameInput?: string,
     ) {
     }
 
@@ -34,6 +37,8 @@ export class App {
         }
         if (this.printSummaryEnabled)
             this.printSummary();
+        if (this.championNameInput)
+            this.printChampionSummary(this.championNameInput);
     }
 
     private async updateMatchInfoMap() {
@@ -60,11 +65,26 @@ export class App {
             console.log('  newest: ' + new Date(allMatches[allMatches.length - 1].info.gameCreation));
         }
         const champions = findChampions(allMatches);
-        console.log('Champions [' + champions.length + ']');
-        const yourChampions = findChampions(allMatches, this.userId);
+        console.log('Champions [' + Object.keys(champions).length + ']');
+        const playerChampions = findChampions(allMatches, this.userId);
         console.log('Your champions: ');
-        for (const championName in yourChampions)
-            console.log('  ' + championName, yourChampions[championName]);
+        for (const championName in playerChampions)
+            console.log('  ' + championName, playerChampions[championName]);
+    }
+
+    private printChampionSummary(championNameInput: string) {
+        const allMatches = Object.values(this.matchInfoMap);
+        const yourChampions = findChampions(allMatches, this.userId);
+        const championName = findByEditingDistance(Object.keys(yourChampions), championNameInput);
+        if (championName) {
+            console.log(championName + ' [' + yourChampions[championName] + ']');
+            const stats = this.buildStats(championName);
+            for (const stat of stats) {
+                console.log(stat.toString());
+            }
+        } else {
+            console.warn('Champion not found: ' + championNameInput);
+        }
     }
 
     private readMatchInfoMap() {
@@ -129,12 +149,45 @@ export class App {
         if (!response.ok) {
             if (response.status === Status.Forbidden)
                 console.warn('Please provide a fresh RIOT API token from https://developer.riotgames.com');
-            if (response.status == Status.TooManyRequests) {
+            if (response.status === Status.TooManyRequests) {
                 await sleep(1000);
                 return this.fetchFromApi(url);
             }
             throw new Error(response.statusText);
         }
         return response.json();
+    }
+
+    private buildStats(playerChampionName: string): ChampionWinRateInfo[] {
+        const isDesiredParticipant = (participant: MatchParticipantInfo) =>
+            participant.puuid === this.userId && participant.championName === playerChampionName;
+        const matches = Object.values(this.matchInfoMap)
+            .filter(match => match.info.participants.some(isDesiredParticipant));
+        const winRateInfoMap: Record<string, ChampionWinRateInfo> = {};
+        for (const match of matches) {
+            const playerParticipant = match.info.participants.find(isDesiredParticipant);
+            if (playerParticipant) {
+                for (const participant of match.info.participants) {
+                    let winRateItem = winRateInfoMap[participant.championName];
+                    if (!winRateItem) {
+                        winRateItem = new ChampionWinRateInfo(participant.championName);
+                        winRateInfoMap[participant.championName] = winRateItem;
+                    }
+                    const isAlly = participant.teamId === playerParticipant.teamId;
+                    if (isAlly) {
+                        winRateItem.allyInfo.matchCount += 1;
+                        if (participant.win)
+                            winRateItem.allyInfo.victoryCount += 1;
+                    } else {
+                        winRateItem.enemyInfo.matchCount += 1;
+                        if (participant.win)
+                            winRateItem.enemyInfo.victoryCount += 1;
+                    }
+                }
+            }
+        }
+        const winRateInfoArray = Object.values(winRateInfoMap);
+        winRateInfoArray.sort((a, b) => b.totalMatchCount - a.totalMatchCount);
+        return winRateInfoArray;
     }
 }
