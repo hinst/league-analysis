@@ -1,7 +1,7 @@
 export type MatchInfoMap = Record<string, MatchInfoRecord>;
 
 export interface MatchInfoRecord {
-    metadata: any;
+    metadata: unknown;
     info: MatchInfo;
 }
 
