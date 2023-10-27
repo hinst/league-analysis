@@ -45,5 +45,5 @@ export function findByEditingDistance(strings: string[], desiredString: string):
             result = s;
         }
     }
-    return result;
+    return minDistance < desiredString.length ? result : undefined;
 }
