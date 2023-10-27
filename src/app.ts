@@ -1,9 +1,11 @@
 import { Config } from './config.ts';
-import { MatchInfoMap, MatchInfoRecord, MatchParticipantInfo, findChampions } from './match.ts';
+import { MatchInfoMap, MatchInfoRecord, findChampions, getWinRate } from './match.ts';
 import { Status } from 'https://deno.land/std@0.204.0/http/http_status.ts';
 import { sleep } from './sleep.ts';
 import { findByEditingDistance } from './editingDistance.ts';
 import { ChampionWinRateInfo } from './championWinRate.ts';
+import { formatPercent } from './format.ts';
+import { sortObjectFieldsByNumber } from './object.ts';
 
 export class App {
     apiUrl = 'https://europe.api.riotgames.com';
@@ -66,10 +68,11 @@ export class App {
         }
         const champions = findChampions(allMatches);
         console.log('Champions [' + Object.keys(champions).length + ']');
-        const playerChampions = findChampions(allMatches, this.userId);
+        const playerChampions = sortObjectFieldsByNumber(findChampions(allMatches, this.userId), -1);
         console.log('Your champions: ');
         for (const championName in playerChampions)
-            console.log('  ' + championName, playerChampions[championName]);
+            console.log('  ' + championName, playerChampions[championName],
+                formatPercent(getWinRate(allMatches, this.userId, championName)));
     }
 
     private printChampionSummary(championNameInput: string) {
@@ -78,7 +81,7 @@ export class App {
         const championName = findByEditingDistance(Object.keys(yourChampions), championNameInput);
         if (championName) {
             console.log(championName + ' [' + yourChampions[championName] + ']');
-            const stats = this.buildStats(championName);
+            const stats = ChampionWinRateInfo.build(Object.values(this.matchInfoMap), this.userId, championName);
             const bestAllies = ChampionWinRateInfo.sortTop(stats, true, false);
             console.log('Best allies: ');
             for (const bestAlly of bestAllies.slice(0, 5))
@@ -169,38 +172,5 @@ export class App {
             throw new Error(response.statusText);
         }
         return response.json();
-    }
-
-    private buildStats(playerChampionName: string): ChampionWinRateInfo[] {
-        const isDesiredParticipant = (participant: MatchParticipantInfo) =>
-            participant.puuid === this.userId && participant.championName === playerChampionName;
-        const matches = Object.values(this.matchInfoMap)
-            .filter(match => match.info.participants.some(isDesiredParticipant));
-        const winRateInfoMap: Record<string, ChampionWinRateInfo> = {};
-        for (const match of matches) {
-            const playerParticipant = match.info.participants.find(isDesiredParticipant);
-            if (playerParticipant) {
-                for (const participant of match.info.participants) {
-                    let winRateItem = winRateInfoMap[participant.championName];
-                    if (!winRateItem) {
-                        winRateItem = new ChampionWinRateInfo(participant.championName);
-                        winRateInfoMap[participant.championName] = winRateItem;
-                    }
-                    const isAlly = participant.teamId === playerParticipant.teamId;
-                    if (isAlly) {
-                        winRateItem.allyInfo.matchCount += 1;
-                        if (playerParticipant.win)
-                            winRateItem.allyInfo.victoryCount += 1;
-                    } else {
-                        winRateItem.enemyInfo.matchCount += 1;
-                        if (playerParticipant.win)
-                            winRateItem.enemyInfo.victoryCount += 1;
-                    }
-                }
-            }
-        }
-        const winRateInfoArray = Object.values(winRateInfoMap);
-        winRateInfoArray.sort((a, b) => b.totalMatchCount - a.totalMatchCount);
-        return winRateInfoArray;
     }
 }
