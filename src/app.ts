@@ -3,16 +3,16 @@ import { MatchInfoMap, MatchInfoRecord, findChampions, getWinRate } from './matc
 import { Status } from 'https://deno.land/std@0.204.0/http/http_status.ts';
 import { sleep } from './sleep.ts';
 import { findByEditingDistance } from './editingDistance.ts';
-import { ChampionWinRateInfo } from './championWinRate.ts';
+import { ChampionWinRateInfo, Team } from './championWinRate.ts';
 import { formatPercent } from './format.ts';
-import { sortObjectFieldsByNumber } from './object.ts';
+import { sortObjectFieldsByName, sortObjectFieldsByNumber } from './object.ts';
 
 export class App {
-    apiUrl = 'https://europe.api.riotgames.com';
-    apiKey = '';
-    userId = '';
-    matchInfoMap: MatchInfoMap = {};
-    matchInfoMapFileName = 'matchInfoMap.json';
+    private apiUrl = 'https://europe.api.riotgames.com';
+    private apiKey = '';
+    private userId = '';
+    private matchInfoMap: MatchInfoMap = {};
+    private matchInfoMapFileName = 'matchInfoMap.json';
 
     constructor(
         private updateEnabled: boolean,
@@ -81,23 +81,29 @@ export class App {
         const championName = findByEditingDistance(Object.keys(yourChampions), championNameInput);
         if (championName) {
             console.log(championName + ' [' + yourChampions[championName] + ']');
-            const stats = ChampionWinRateInfo.build(Object.values(this.matchInfoMap), this.userId, championName);
-            const bestAllies = ChampionWinRateInfo.sortTop(stats, true, false);
+            const stats = ChampionWinRateInfo.build(allMatches, this.userId, championName);
+            const bestAllies = ChampionWinRateInfo.sortTop(stats, Team.ALLY, -1);
             console.log('Best allies: ');
             for (const bestAlly of bestAllies.slice(0, 5))
                 console.log('  ' + bestAlly.toString());
-            const worstAllies = ChampionWinRateInfo.sortTop(stats, true, true);
+            const worstAllies = ChampionWinRateInfo.sortTop(stats, Team.ALLY, 1);
             console.log('Worst allies: ');
             for (const worstAlly of worstAllies.slice(0, 5))
                 console.log('  ' + worstAlly.toString());
-            const easiestEnemies = ChampionWinRateInfo.sortTop(stats, false, false);
+            const easiestEnemies = ChampionWinRateInfo.sortTop(stats, Team.ENEMY, 1);
             console.log('Easiest enemies: ');
             for (const easiestEnemy of easiestEnemies.slice(0, 5))
                 console.log('  ' + easiestEnemy.toString());
-            const hardestEnemies = ChampionWinRateInfo.sortTop(stats, false, true);
+            const hardestEnemies = ChampionWinRateInfo.sortTop(stats, Team.ENEMY, -1);
             console.log('Hardest enemies: ');
             for (const hardestEnemy of hardestEnemies.slice(0, 5))
                 console.log('  ' + hardestEnemy.toString());
+            const winRateMonths = sortObjectFieldsByName(
+                ChampionWinRateInfo.getWinRateByMonth(allMatches, this.userId, championName), 1
+            );
+            console.log('Win rate by month: ');
+            for (const winRateMonth in winRateMonths)
+                console.log('  ' + winRateMonth, formatPercent(winRateMonths[winRateMonth].winRate));
         } else {
             console.warn('Champion not found: ' + championNameInput);
         }

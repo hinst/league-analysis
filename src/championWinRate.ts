@@ -13,6 +13,11 @@ class WinRateInfo {
     }
 }
 
+export enum Team {
+    ALLY = 1,
+    ENEMY = -1,
+}
+
 export class ChampionWinRateInfo {
     static readonly SIGNIFICANT_STATISTIC_THRESHOLD = 10;
 
@@ -33,17 +38,17 @@ export class ChampionWinRateInfo {
             ' enemy ' + formatPercent(this.enemyInfo.winRate);
     }
 
-    static sortTop(infos: ChampionWinRateInfo[], isAlly: boolean, isReverse: boolean): ChampionWinRateInfo[] {
+    static sortTop(infos: ChampionWinRateInfo[], team: Team, sortDirection: number): ChampionWinRateInfo[] {
         function isSignificant(info: ChampionWinRateInfo) {
-            return isAlly
+            return team === Team.ALLY
                 ? info.allyInfo.matchCount >= ChampionWinRateInfo.SIGNIFICANT_STATISTIC_THRESHOLD
                 : info.enemyInfo.matchCount >= ChampionWinRateInfo.SIGNIFICANT_STATISTIC_THRESHOLD;
         }
         function compare(a: ChampionWinRateInfo, b: ChampionWinRateInfo) {
-            const comparison = isAlly
-                ? (b.allyInfo.winRate || 0) - (a.allyInfo.winRate || 0)
-                : (b.enemyInfo.winRate || 0) - (a.enemyInfo.winRate || 0);
-            return isReverse ? -comparison : comparison;
+            const comparison = team === Team.ALLY
+                ? (a.allyInfo.winRate || 0) - (b.allyInfo.winRate || 0)
+                : (a.enemyInfo.winRate || 0) - (b.enemyInfo.winRate || 0);
+            return comparison * sortDirection;
         }
         return infos.filter(isSignificant).sort(compare);
     }
@@ -51,25 +56,26 @@ export class ChampionWinRateInfo {
     static build(matches: MatchInfoRecord[], userId: string, playerChampionName: string): ChampionWinRateInfo[] {
         const isDesiredParticipant = (participant: MatchParticipantInfo) =>
             participant.puuid === userId && participant.championName === playerChampionName;
-        matches = matches.filter(match => match.info.participants.some(isDesiredParticipant));
         const winRateInfoMap: Record<string, ChampionWinRateInfo> = {};
         for (const match of matches) {
-            const playerParticipant = match.info.participants.find(isDesiredParticipant);
-            if (playerParticipant) {
-                for (const participant of match.info.participants) {
-                    let winRateItem = winRateInfoMap[participant.championName];
+            const player = match.info.participants.find(isDesiredParticipant);
+            if (player) {
+                for (const teammate of match.info.participants) {
+                    if (teammate.puuid === userId)
+                        continue;
+                    let winRateItem = winRateInfoMap[teammate.championName];
                     if (!winRateItem) {
-                        winRateItem = new ChampionWinRateInfo(participant.championName);
-                        winRateInfoMap[participant.championName] = winRateItem;
+                        winRateItem = new ChampionWinRateInfo(teammate.championName);
+                        winRateInfoMap[teammate.championName] = winRateItem;
                     }
-                    const isAlly = participant.teamId === playerParticipant.teamId;
+                    const isAlly = teammate.teamId === player.teamId;
                     if (isAlly) {
                         winRateItem.allyInfo.matchCount += 1;
-                        if (playerParticipant.win)
+                        if (player.win)
                             winRateItem.allyInfo.victoryCount += 1;
                     } else {
                         winRateItem.enemyInfo.matchCount += 1;
-                        if (playerParticipant.win)
+                        if (player.win)
                             winRateItem.enemyInfo.victoryCount += 1;
                     }
                 }
@@ -78,6 +84,27 @@ export class ChampionWinRateInfo {
         const winRateInfoArray = Object.values(winRateInfoMap);
         winRateInfoArray.sort((a, b) => b.totalMatchCount - a.totalMatchCount);
         return winRateInfoArray;
+    }
+
+    static getWinRateByMonth(matches: MatchInfoRecord[], userId: string, playerChampionName: string) {
+        const isDesiredParticipant = (participant: MatchParticipantInfo) =>
+            participant.puuid === userId && participant.championName === playerChampionName;
+        const monthlyWinRateMap: Record<string, WinRateInfo> = {};
+        for (const match of matches) {
+            const playerParticipant = match.info.participants.find(isDesiredParticipant);
+            if (playerParticipant) {
+                const monthKey = new Date(match.info.gameCreation).toISOString().slice(0, 7);
+                let winRateInfo = monthlyWinRateMap[monthKey];
+                if (!winRateInfo) {
+                    winRateInfo = new WinRateInfo(0, 0);
+                    monthlyWinRateMap[monthKey] = winRateInfo;
+                }
+                winRateInfo.matchCount += 1;
+                if (playerParticipant.win)
+                    winRateInfo.victoryCount += 1;
+            }
+        }
+        return monthlyWinRateMap;
     }
 }
 
