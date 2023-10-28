@@ -3,13 +3,17 @@ import { MatchInfoRecord, MatchParticipantInfo } from './match.ts';
 
 export class WinRateInfo {
     constructor(
-        public matchCount: number,
-        public victoryCount: number,
+        public matchCount: number = 0,
+        public victoryCount: number = 0,
     ) {
     }
 
     get winRate(): number | undefined {
         return this.matchCount ? this.victoryCount / this.matchCount : undefined;
+    }
+
+    toString() {
+        return '' + this.victoryCount + '/' + this.matchCount + '=' + formatPercent(this.winRate);
     }
 
     static getWinRate(records: MatchInfoRecord[], userId: string, championName: string): WinRateInfo {
@@ -24,30 +28,6 @@ export class WinRateInfo {
             }
         }
         return new WinRateInfo(matchCount, victoryCount);
-    }
-
-    static getDualWinRate(records: MatchInfoRecord[], userId: string, userChampionName: string, secondChampionName: string, team: Team): WinRateInfo {
-        let matchCount = 0;
-        let victoryCount = 0;
-        for (const record of records) {
-            const player = record.info.participants.find(p => p.puuid === userId && p.championName === userChampionName);
-            const teammate = record.info.participants.find(p => p.puuid !== userId && p.championName === secondChampionName);
-            const isMatching = player && teammate &&
-                (team === Team.ALLY && player.teamId === teammate.teamId || team === Team.ENEMY && player.teamId !== teammate.teamId);
-            if (isMatching) {
-                matchCount += 1;
-                if (player.win)
-                    victoryCount += 1;
-            }
-        }
-        return new WinRateInfo(matchCount, victoryCount);
-    }
-
-    static getDualWinRateMap(records: MatchInfoRecord[], userId: string, userChampionName: string, secondChampionNames: string[], team: Team): Record<string, WinRateInfo> {
-        const winRateMap: Record<string, WinRateInfo> = {};
-        for (const secondChampionName of secondChampionNames)
-            winRateMap[secondChampionName] = WinRateInfo.getDualWinRate(records, userId, userChampionName, secondChampionName, team);
-        return winRateMap;
     }
 }
 
@@ -68,10 +48,13 @@ export class ChampionWinRateInfo {
         return this.allyInfo.matchCount + this.enemyInfo.matchCount;
     }
 
-    toString() {
-        return this.championName + ' [' + this.totalMatchCount + ']' +
-            ' ally ' + formatPercent(this.allyInfo.winRate) +
-            ' enemy ' + formatPercent(this.enemyInfo.winRate);
+    toString(team?: Team) {
+        let text = this.championName + ' [' + this.totalMatchCount + ']';
+        if (!team || team === Team.ALLY)
+            text += ' ally ' + formatPercent(this.allyInfo.winRate);
+        if (!team || team === Team.ENEMY)
+            text += ' enemy ' + formatPercent(this.enemyInfo.winRate);
+        return text;
     }
 
     static sortTop(infos: ChampionWinRateInfo[], significantStatisticThreshold: number, team: Team, sortDirection: number): ChampionWinRateInfo[] {

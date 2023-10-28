@@ -90,19 +90,19 @@ export class App {
             const bestAllies = ChampionWinRateInfo.sortTop(stats, App.SIGNIFICANT_STATISTIC_THRESHOLD, Team.ALLY, -1);
             console.log('Best allies: ');
             for (const bestAlly of bestAllies.slice(0, 5))
-                console.log('  ' + bestAlly.toString());
+                console.log('  ' + bestAlly.toString(Team.ALLY));
             const worstAllies = ChampionWinRateInfo.sortTop(stats, App.SIGNIFICANT_STATISTIC_THRESHOLD, Team.ALLY, 1);
             console.log('Worst allies: ');
             for (const worstAlly of worstAllies.slice(0, 5))
-                console.log('  ' + worstAlly.toString());
-            const easiestEnemies = ChampionWinRateInfo.sortTop(stats, App.SIGNIFICANT_STATISTIC_THRESHOLD, Team.ENEMY, 1);
+                console.log('  ' + worstAlly.toString(Team.ALLY));
+            const easiestEnemies = ChampionWinRateInfo.sortTop(stats, App.SIGNIFICANT_STATISTIC_THRESHOLD, Team.ENEMY, -1);
             console.log('Easiest enemies: ');
             for (const easiestEnemy of easiestEnemies.slice(0, 5))
-                console.log('  ' + easiestEnemy.toString());
-            const hardestEnemies = ChampionWinRateInfo.sortTop(stats, App.SIGNIFICANT_STATISTIC_THRESHOLD, Team.ENEMY, -1);
+                console.log('  ' + easiestEnemy.toString(Team.ENEMY));
+            const hardestEnemies = ChampionWinRateInfo.sortTop(stats, App.SIGNIFICANT_STATISTIC_THRESHOLD, Team.ENEMY, 1);
             console.log('Hardest enemies: ');
             for (const hardestEnemy of hardestEnemies.slice(0, 5))
-                console.log('  ' + hardestEnemy.toString());
+                console.log('  ' + hardestEnemy.toString(Team.ENEMY));
             const winRateMonths = sortObjectFieldsByName(
                 ChampionWinRateInfo.getWinRateByMonth(allMatches, this.userId, championName), 1
             );
@@ -203,12 +203,28 @@ export class App {
             findChampions(Object.values(this.matchInfoMap), this.userId), -1
         );
         for (const userChampion of Object.keys(userChampions)) {
-            console.log(userChampion);
-            const winRateMap = Object.assign(
-                WinRateInfo.getDualWinRateMap(allMatches, this.userId, userChampion, allies, Team.ALLY),
-                WinRateInfo.getDualWinRateMap(allMatches, this.userId, userChampion, enemies, Team.ENEMY)
-            );
-            console.log(winRateMap);
+            const stats = ChampionWinRateInfo.build(allMatches, this.userId, userChampion);
+            const advices: { championName: string, winRate: WinRateInfo, team: Team }[] = [];
+            const totalWinRate = new WinRateInfo();
+            for (const ally of allies) {
+                const allyStats = stats.find(stat => stat.championName === ally);
+                if (allyStats) {
+                    advices.push({ championName: ally, winRate: allyStats.allyInfo, team: Team.ALLY });
+                    totalWinRate.matchCount += allyStats.allyInfo.matchCount;
+                    totalWinRate.victoryCount += allyStats.allyInfo.victoryCount;
+                }
+            }
+            for (const enemy of enemies) {
+                const enemyStats = stats.find(stat => stat.championName === enemy);
+                if (enemyStats) {
+                    advices.push({ championName: enemy, winRate: enemyStats.enemyInfo, team: Team.ENEMY });
+                    totalWinRate.matchCount += enemyStats.enemyInfo.matchCount;
+                    totalWinRate.victoryCount += enemyStats.enemyInfo.victoryCount;
+                }
+            }
+            console.log(userChampion + ' ' + totalWinRate.toString());
+            for (const advice of advices)
+                console.log('  ' + advice.championName + ' ' + advice.winRate.toString());
         }
     }
 }
