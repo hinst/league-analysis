@@ -70,8 +70,8 @@ export class App {
             console.log('  oldest: ' + new Date(allMatches[0].info.gameCreation));
             console.log('  newest: ' + new Date(allMatches[allMatches.length - 1].info.gameCreation));
         }
-        const champions = findChampions(allMatches);
-        console.log('Champions [' + Object.keys(champions).length + ']');
+        const allChampions = findChampions(allMatches);
+        console.log('Champions [' + Object.keys(allChampions).length + ']');
         const userChampions = sortObjectFieldsByNumber(findChampions(allMatches, this.userId), -1);
         console.log('Your champions: ');
         for (const championName in userChampions)
@@ -187,16 +187,21 @@ export class App {
 
     private printAdvice(adviceQuery: string) {
         const champions = adviceQuery.split(',');
+        const allMatches = Object.values(this.matchInfoMap);
+        const allChampions = Object.keys(findChampions(allMatches));
         const allies = champions
             .filter(championName => championName.startsWith('+'))
-            .map(championName => championName.substring(1));
+            .map(championName => championName.substring(1))
+            .map(championName => findByEditingDistance(allChampions, championName))
+            .filter(championName => championName !== undefined) as string[];
         const enemies = champions
             .filter(championName => championName.startsWith('-'))
-            .map(championName => championName.substring(1));
+            .map(championName => championName.substring(1))
+            .map(championName => findByEditingDistance(allChampions, championName))
+            .filter(championName => championName !== undefined) as string[];
         const userChampions = sortObjectFieldsByNumber(
             findChampions(Object.values(this.matchInfoMap), this.userId), -1
         );
-        const allMatches = Object.values(this.matchInfoMap);
         for (const userChampion of Object.keys(userChampions)) {
             console.log(userChampion);
             const winRateMap = Object.assign(
