@@ -12,6 +12,20 @@ export class WinRateInfo {
         return this.matchCount ? this.victoryCount / this.matchCount : undefined;
     }
 
+    static getWinRate(records: MatchInfoRecord[], userId: string, championName: string): WinRateInfo {
+        let matchCount = 0;
+        let victoryCount = 0;
+        for (const record of records) {
+            const participant = record.info.participants.find(p => p.puuid === userId && p.championName === championName);
+            if (participant) {
+                matchCount += 1;
+                if (participant.win)
+                    victoryCount += 1;
+            }
+        }
+        return new WinRateInfo(matchCount, victoryCount);
+    }
+
     static getDualWinRate(records: MatchInfoRecord[], userId: string, userChampionName: string, secondChampionName: string, team: Team): WinRateInfo {
         let matchCount = 0;
         let victoryCount = 0;
@@ -128,18 +142,4 @@ export class ChampionWinRateInfo {
         }
         return monthlyWinRateMap;
     }
-}
-
-export function getWinRate(records: MatchInfoRecord[], userId: string, championName: string): number | undefined {
-    let matchCount = 0;
-    let victoryCount = 0;
-    for (const record of records) {
-        const participant = record.info.participants.find(p => p.puuid === userId && p.championName === championName);
-        if (participant) {
-            matchCount += 1;
-            if (participant.win)
-                victoryCount += 1;
-        }
-    }
-    return matchCount ? victoryCount / matchCount : undefined;
 }

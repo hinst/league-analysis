@@ -3,7 +3,7 @@ import { MatchInfoMap, MatchInfoRecord, findChampions } from './match.ts';
 import { Status } from 'https://deno.land/std@0.204.0/http/http_status.ts';
 import { sleep } from './sleep.ts';
 import { findByEditingDistance } from './editingDistance.ts';
-import { ChampionWinRateInfo, Team, WinRateInfo, getWinRate } from './championWinRate.ts';
+import { ChampionWinRateInfo, Team, WinRateInfo } from './championWinRate.ts';
 import { formatPercent } from './format.ts';
 import { sortObjectFieldsByName, sortObjectFieldsByNumber } from './object.ts';
 
@@ -76,7 +76,7 @@ export class App {
         console.log('Your champions: ');
         for (const championName in userChampions)
             console.log('  ' + championName, userChampions[championName],
-                formatPercent(getWinRate(allMatches, this.userId, championName)));
+                formatPercent(WinRateInfo.getWinRate(allMatches, this.userId, championName).winRate));
     }
 
     private printChampionSummary(championNameInput: string) {
@@ -85,7 +85,7 @@ export class App {
         const championName = findByEditingDistance(Object.keys(yourChampions), championNameInput);
         if (championName) {
             console.log(championName + ' [' + yourChampions[championName] + '] ' +
-                formatPercent(getWinRate(allMatches, this.userId, championName)));
+                formatPercent(WinRateInfo.getWinRate(allMatches, this.userId, championName).winRate));
             const stats = ChampionWinRateInfo.build(allMatches, this.userId, championName);
             const bestAllies = ChampionWinRateInfo.sortTop(stats, App.SIGNIFICANT_STATISTIC_THRESHOLD, Team.ALLY, -1);
             console.log('Best allies: ');
