@@ -29,17 +29,3 @@ export function findChampions(records: MatchInfoRecord[], userId = '') {
                 champions[participant.championName] = (champions[participant.championName] || 0) + 1;
     return champions;
 }
-
-export function getWinRate(records: MatchInfoRecord[], userId: string, championName: string) {
-    let matchCount = 0;
-    let victoryCount = 0;
-    for (const record of records) {
-        const participant = record.info.participants.find(p => p.puuid === userId && p.championName === championName);
-        if (participant) {
-            matchCount += 1;
-            if (participant.win)
-                victoryCount += 1;
-        }
-    }
-    return matchCount ? victoryCount / matchCount : 0;
-}

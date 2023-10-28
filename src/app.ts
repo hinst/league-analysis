@@ -1,9 +1,9 @@
 import { Config } from './config.ts';
-import { MatchInfoMap, MatchInfoRecord, findChampions, getWinRate } from './match.ts';
+import { MatchInfoMap, MatchInfoRecord, findChampions } from './match.ts';
 import { Status } from 'https://deno.land/std@0.204.0/http/http_status.ts';
 import { sleep } from './sleep.ts';
 import { findByEditingDistance } from './editingDistance.ts';
-import { ChampionWinRateInfo, Team } from './championWinRate.ts';
+import { ChampionWinRateInfo, Team, WinRateInfo, getWinRate } from './championWinRate.ts';
 import { formatPercent } from './format.ts';
 import { sortObjectFieldsByName, sortObjectFieldsByNumber } from './object.ts';
 
@@ -13,11 +13,13 @@ export class App {
     private userId = '';
     private matchInfoMap: MatchInfoMap = {};
     private matchInfoMapFileName = 'matchInfoMap.json';
+    private static readonly SIGNIFICANT_STATISTIC_THRESHOLD = 10;
 
     constructor(
         private updateEnabled: boolean,
         private printSummaryEnabled: boolean,
         private championNameInput?: string,
+        private adviceQuery?: string,
     ) {
     }
 
@@ -41,6 +43,8 @@ export class App {
             this.printSummary();
         if (this.championNameInput)
             this.printChampionSummary(this.championNameInput);
+        if (this.adviceQuery)
+            this.printAdvice(this.adviceQuery);
     }
 
     private async updateMatchInfoMap() {
@@ -68,10 +72,10 @@ export class App {
         }
         const champions = findChampions(allMatches);
         console.log('Champions [' + Object.keys(champions).length + ']');
-        const playerChampions = sortObjectFieldsByNumber(findChampions(allMatches, this.userId), -1);
+        const userChampions = sortObjectFieldsByNumber(findChampions(allMatches, this.userId), -1);
         console.log('Your champions: ');
-        for (const championName in playerChampions)
-            console.log('  ' + championName, playerChampions[championName],
+        for (const championName in userChampions)
+            console.log('  ' + championName, userChampions[championName],
                 formatPercent(getWinRate(allMatches, this.userId, championName)));
     }
 
@@ -80,21 +84,22 @@ export class App {
         const yourChampions = findChampions(allMatches, this.userId);
         const championName = findByEditingDistance(Object.keys(yourChampions), championNameInput);
         if (championName) {
-            console.log(championName + ' [' + yourChampions[championName] + ']');
+            console.log(championName + ' [' + yourChampions[championName] + '] ' +
+                formatPercent(getWinRate(allMatches, this.userId, championName)));
             const stats = ChampionWinRateInfo.build(allMatches, this.userId, championName);
-            const bestAllies = ChampionWinRateInfo.sortTop(stats, Team.ALLY, -1);
+            const bestAllies = ChampionWinRateInfo.sortTop(stats, App.SIGNIFICANT_STATISTIC_THRESHOLD, Team.ALLY, -1);
             console.log('Best allies: ');
             for (const bestAlly of bestAllies.slice(0, 5))
                 console.log('  ' + bestAlly.toString());
-            const worstAllies = ChampionWinRateInfo.sortTop(stats, Team.ALLY, 1);
+            const worstAllies = ChampionWinRateInfo.sortTop(stats, App.SIGNIFICANT_STATISTIC_THRESHOLD, Team.ALLY, 1);
             console.log('Worst allies: ');
             for (const worstAlly of worstAllies.slice(0, 5))
                 console.log('  ' + worstAlly.toString());
-            const easiestEnemies = ChampionWinRateInfo.sortTop(stats, Team.ENEMY, 1);
+            const easiestEnemies = ChampionWinRateInfo.sortTop(stats, App.SIGNIFICANT_STATISTIC_THRESHOLD, Team.ENEMY, 1);
             console.log('Easiest enemies: ');
             for (const easiestEnemy of easiestEnemies.slice(0, 5))
                 console.log('  ' + easiestEnemy.toString());
-            const hardestEnemies = ChampionWinRateInfo.sortTop(stats, Team.ENEMY, -1);
+            const hardestEnemies = ChampionWinRateInfo.sortTop(stats, App.SIGNIFICANT_STATISTIC_THRESHOLD, Team.ENEMY, -1);
             console.log('Hardest enemies: ');
             for (const hardestEnemy of hardestEnemies.slice(0, 5))
                 console.log('  ' + hardestEnemy.toString());
@@ -178,5 +183,27 @@ export class App {
             throw new Error(response.statusText);
         }
         return response.json();
+    }
+
+    private printAdvice(adviceQuery: string) {
+        const champions = adviceQuery.split(',');
+        const allies = champions
+            .filter(championName => championName.startsWith('+'))
+            .map(championName => championName.substring(1));
+        const enemies = champions
+            .filter(championName => championName.startsWith('-'))
+            .map(championName => championName.substring(1));
+        const userChampions = sortObjectFieldsByNumber(
+            findChampions(Object.values(this.matchInfoMap), this.userId), -1
+        );
+        const allMatches = Object.values(this.matchInfoMap);
+        for (const userChampion of Object.keys(userChampions)) {
+            console.log(userChampion);
+            const winRateMap = Object.assign(
+                WinRateInfo.getDualWinRateMap(allMatches, this.userId, userChampion, allies, Team.ALLY),
+                WinRateInfo.getDualWinRateMap(allMatches, this.userId, userChampion, enemies, Team.ENEMY)
+            );
+            console.log(winRateMap);
+        }
     }
 }

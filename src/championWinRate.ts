@@ -1,7 +1,7 @@
 import { formatPercent } from './format.ts';
 import { MatchInfoRecord, MatchParticipantInfo } from './match.ts';
 
-class WinRateInfo {
+export class WinRateInfo {
     constructor(
         public matchCount: number,
         public victoryCount: number,
@@ -9,7 +9,31 @@ class WinRateInfo {
     }
 
     get winRate(): number | undefined {
-        return this.matchCount === 0 ? undefined : this.victoryCount / this.matchCount;
+        return this.matchCount ? this.victoryCount / this.matchCount : undefined;
+    }
+
+    static getDualWinRate(records: MatchInfoRecord[], userId: string, userChampionName: string, secondChampionName: string, team: Team): WinRateInfo {
+        let matchCount = 0;
+        let victoryCount = 0;
+        for (const record of records) {
+            const player = record.info.participants.find(p => p.puuid === userId && p.championName === userChampionName);
+            const teammate = record.info.participants.find(p => p.puuid !== userId && p.championName === secondChampionName);
+            const isMatching = player && teammate &&
+                (team === Team.ALLY && player.teamId === teammate.teamId || team === Team.ENEMY && player.teamId !== teammate.teamId);
+            if (isMatching) {
+                matchCount += 1;
+                if (player.win)
+                    victoryCount += 1;
+            }
+        }
+        return new WinRateInfo(matchCount, victoryCount);
+    }
+
+    static getDualWinRateMap(records: MatchInfoRecord[], userId: string, userChampionName: string, secondChampionNames: string[], team: Team): Record<string, WinRateInfo> {
+        const winRateMap: Record<string, WinRateInfo> = {};
+        for (const secondChampionName of secondChampionNames)
+            winRateMap[secondChampionName] = WinRateInfo.getDualWinRate(records, userId, userChampionName, secondChampionName, team);
+        return winRateMap;
     }
 }
 
@@ -19,8 +43,6 @@ export enum Team {
 }
 
 export class ChampionWinRateInfo {
-    static readonly SIGNIFICANT_STATISTIC_THRESHOLD = 10;
-
     constructor(
         public championName: string,
         public allyInfo: WinRateInfo = new WinRateInfo(0, 0),
@@ -38,11 +60,11 @@ export class ChampionWinRateInfo {
             ' enemy ' + formatPercent(this.enemyInfo.winRate);
     }
 
-    static sortTop(infos: ChampionWinRateInfo[], team: Team, sortDirection: number): ChampionWinRateInfo[] {
+    static sortTop(infos: ChampionWinRateInfo[], significantStatisticThreshold: number, team: Team, sortDirection: number): ChampionWinRateInfo[] {
         function isSignificant(info: ChampionWinRateInfo) {
             return team === Team.ALLY
-                ? info.allyInfo.matchCount >= ChampionWinRateInfo.SIGNIFICANT_STATISTIC_THRESHOLD
-                : info.enemyInfo.matchCount >= ChampionWinRateInfo.SIGNIFICANT_STATISTIC_THRESHOLD;
+                ? info.allyInfo.matchCount >= significantStatisticThreshold
+                : info.enemyInfo.matchCount >= significantStatisticThreshold;
         }
         function compare(a: ChampionWinRateInfo, b: ChampionWinRateInfo) {
             const comparison = team === Team.ALLY
@@ -108,3 +130,16 @@ export class ChampionWinRateInfo {
     }
 }
 
+export function getWinRate(records: MatchInfoRecord[], userId: string, championName: string): number | undefined {
+    let matchCount = 0;
+    let victoryCount = 0;
+    for (const record of records) {
+        const participant = record.info.participants.find(p => p.puuid === userId && p.championName === championName);
+        if (participant) {
+            matchCount += 1;
+            if (participant.win)
+                victoryCount += 1;
+        }
+    }
+    return matchCount ? victoryCount / matchCount : undefined;
+}

@@ -3,7 +3,7 @@ import { App } from './app.ts';
 
 const flags = parse(Deno.args, {
     boolean: ['update', 'summary'],
-    string: ['champion'],
+    string: ['champion', 'advice'],
 });
 
-new App(flags.update, flags.summary, flags.champion).run();
+new App(flags.update, flags.summary, flags.champion, flags.advice).run();
