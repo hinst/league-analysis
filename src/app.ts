@@ -1,11 +1,12 @@
+import { Status } from 'https://deno.land/std@0.204.0/http/http_status.ts';
 import { Config } from './config.ts';
 import { MatchInfoMap, MatchInfoRecord, findChampions } from './match.ts';
-import { Status } from 'https://deno.land/std@0.204.0/http/http_status.ts';
 import { sleep } from './sleep.ts';
 import { findByEditingDistance } from './editingDistance.ts';
 import { ChampionWinRateInfo, Team, WinRateInfo } from './championWinRate.ts';
 import { formatPercent } from './format.ts';
 import { sortObjectFieldsByName, sortObjectFieldsByNumber } from './object.ts';
+import { TeamChanceAdvice } from './teamChanceAdvice.ts';
 
 export class App {
     private apiUrl = 'https://europe.api.riotgames.com';
@@ -202,29 +203,26 @@ export class App {
         const userChampions = sortObjectFieldsByNumber(
             findChampions(Object.values(this.matchInfoMap), this.userId), -1
         );
-        for (const userChampion of Object.keys(userChampions)) {
+        const advices = Object.keys(userChampions).map(userChampion => {
+            const advice = new TeamChanceAdvice(userChampion);
             const stats = ChampionWinRateInfo.build(allMatches, this.userId, userChampion);
-            const advices: { championName: string, winRate: WinRateInfo, team: Team }[] = [];
-            const totalWinRate = new WinRateInfo();
             for (const ally of allies) {
-                const allyStats = stats.find(stat => stat.championName === ally);
-                if (allyStats) {
-                    advices.push({ championName: ally, winRate: allyStats.allyInfo, team: Team.ALLY });
-                    totalWinRate.matchCount += allyStats.allyInfo.matchCount;
-                    totalWinRate.victoryCount += allyStats.allyInfo.victoryCount;
-                }
+                const allyStats = stats.find(stat => stat.championName === ally && stat.allyInfo.matchCount > 0);
+                if (allyStats)
+                    advice.add(allyStats, Team.ALLY);
             }
             for (const enemy of enemies) {
-                const enemyStats = stats.find(stat => stat.championName === enemy);
-                if (enemyStats) {
-                    advices.push({ championName: enemy, winRate: enemyStats.enemyInfo, team: Team.ENEMY });
-                    totalWinRate.matchCount += enemyStats.enemyInfo.matchCount;
-                    totalWinRate.victoryCount += enemyStats.enemyInfo.victoryCount;
-                }
+                const enemyStats = stats.find(stat => stat.championName === enemy && stat.enemyInfo.matchCount > 0);
+                if (enemyStats)
+                    advice.add(enemyStats, Team.ENEMY);
             }
-            console.log(userChampion + ' ' + totalWinRate.toString());
-            for (const advice of advices)
-                console.log('  ' + advice.championName + ' ' + advice.winRate.toString());
+            return advice;
+        });
+        advices.sort((a, b) => (b.totalWinRate.winRate || 0) - (a.totalWinRate.winRate || 0));
+        for (const advice of advices) {
+            console.log(advice.championName + ' ' + advice.totalWinRate.toString());
+            for (const champion of advice.champions)
+                console.log('  ' + champion.championName + ' ' + champion.winRate.toString());
         }
     }
 }
