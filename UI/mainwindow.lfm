@@ -1,0 +1,19 @@
+object Form1: TForm1
+  Left = 523
+  Height = 308
+  Top = 347
+  Width = 397
+  Caption = 'League Analysis'
+  Menu = MainMenu1
+  LCLVersion = '2.2.0.4'
+  object MainMenu1: TMainMenu
+    Left = 24
+    Top = 8
+    object FileMenuItem: TMenuItem
+      Caption = 'File'
+      object UpdateMenuItem: TMenuItem
+        Caption = 'Update'
+      end
+    end
+  end
+end
