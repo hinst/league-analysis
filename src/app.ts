@@ -126,7 +126,7 @@ export class App {
     }
 
     private writeMatchInfoMap() {
-        Deno.writeTextFileSync('./data/' + this.matchInfoMapFileName, JSON.stringify(this.matchInfoMap));
+        Deno.writeTextFileSync('./data/' + this.matchInfoMapFileName, JSON.stringify(this.matchInfoMap, null, '\t'));
     }
 
     private async readUserId(gameName: string, tagLine: string) {
