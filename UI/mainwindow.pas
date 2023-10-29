@@ -6,7 +6,7 @@ interface
 
 uses
   Classes, SysUtils, Forms, Controls, Graphics, Dialogs, ComCtrls, Menus,
-  RTTICtrls;
+  RTTICtrls, UpdateFrame;
 
 type
 
@@ -16,9 +16,9 @@ type
     MainMenu1: TMainMenu;
     FileMenuItem: TMenuItem;
     UpdateMenuItem: TMenuItem;
-    procedure TabControl1Change(Sender: TObject);
+    procedure UpdateMenuItemClick(Sender: TObject);
   private
-
+    ActiveFrame: TFrame;
   public
 
   end;
@@ -32,9 +32,11 @@ implementation
 
 { TForm1 }
 
-procedure TForm1.TabControl1Change(Sender: TObject);
+procedure TForm1.UpdateMenuItemClick(Sender: TObject);
 begin
-
+  ActiveFrame := TUpdateFrameComponent.Create(self);
+  ActiveFrame.Parent := self;
+  ActiveFrame.Align := alClient;
 end;
 
 end.

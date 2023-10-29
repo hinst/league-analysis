@@ -5,10 +5,17 @@ unit UpdateFrame;
 interface
 
 uses
-  Classes, SysUtils, Forms, Controls;
+  Classes, SysUtils, Forms, Controls, ComCtrls, ExtCtrls, Buttons;
 
 type
-  TFrame1 = class(TFrame)
+
+  { TUpdateFrameComponent }
+
+  TUpdateFrameComponent = class(TFrame)
+    ApiKeyEdit: TLabeledEdit;
+    ProgressBar1: TProgressBar;
+    SpeedButton1: TSpeedButton;
+    SpeedButton2: TSpeedButton;
   private
 
   public

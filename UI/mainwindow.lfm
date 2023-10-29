@@ -13,6 +13,7 @@ object Form1: TForm1
       Caption = 'File'
       object UpdateMenuItem: TMenuItem
         Caption = 'Update'
+        OnClick = UpdateMenuItemClick
       end
     end
   end
