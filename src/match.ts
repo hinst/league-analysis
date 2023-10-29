@@ -19,6 +19,7 @@ export interface MatchParticipantInfo {
     championName: string;
     win: boolean;
     teamId: number;
+    gameEndedInEarlySurrender: boolean;
 }
 
 export function findChampions(records: MatchInfoRecord[], userId = '') {
