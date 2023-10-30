@@ -1,4 +1,4 @@
-unit MainWindow;
+unit MainWindowUnit;
 
 {$mode objfpc}{$H+}
 
@@ -6,7 +6,7 @@ interface
 
 uses
   Classes, SysUtils, Forms, Controls, Graphics, Dialogs, ComCtrls, Menus,
-  RTTICtrls, UpdateFrame;
+  RTTICtrls, ConfigurationFrameUnit;
 
 type
 
@@ -34,7 +34,7 @@ implementation
 
 procedure TForm1.UpdateMenuItemClick(Sender: TObject);
 begin
-  ActiveFrame := TUpdateFrameComponent.Create(self);
+  ActiveFrame := TConfigurationFrame.Create(self);
   ActiveFrame.Parent := self;
   ActiveFrame.Align := alClient;
 end;

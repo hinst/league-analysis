@@ -38,20 +38,18 @@
         <IsPartOfProject Value="True"/>
       </Unit>
       <Unit>
-        <Filename Value="mainwindow.pas"/>
+        <Filename Value="MainWindowUnit.pas"/>
         <IsPartOfProject Value="True"/>
         <ComponentName Value="Form1"/>
         <HasResources Value="True"/>
         <ResourceBaseClass Value="Form"/>
-        <UnitName Value="MainWindow"/>
       </Unit>
       <Unit>
-        <Filename Value="updateframe.pas"/>
+        <Filename Value="ConfigurationFrameUnit.pas"/>
         <IsPartOfProject Value="True"/>
         <ComponentName Value="UpdateFrameComponent"/>
         <HasResources Value="True"/>
         <ResourceBaseClass Value="Frame"/>
-        <UnitName Value="UpdateFrame"/>
       </Unit>
     </Units>
   </ProjectOptions>

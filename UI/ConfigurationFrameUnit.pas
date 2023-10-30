@@ -1,4 +1,4 @@
-unit UpdateFrame;
+unit ConfigurationFrameUnit;
 
 {$mode ObjFPC}{$H+}
 
@@ -9,9 +9,9 @@ uses
 
 type
 
-  { TUpdateFrameComponent }
+  { TConfigurationFrame }
 
-  TUpdateFrameComponent = class(TFrame)
+  TConfigurationFrame = class(TFrame)
     ApiKeyEdit: TLabeledEdit;
     ProgressBar1: TProgressBar;
     SpeedButton1: TSpeedButton;
