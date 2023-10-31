@@ -5,7 +5,7 @@ unit ConfigurationFrameUnit;
 interface
 
 uses
-  Classes, SysUtils, Forms, Controls, ComCtrls, ExtCtrls, Buttons;
+  Classes, SysUtils, Forms, Controls, ComCtrls, ExtCtrls, Buttons, fpjson;
 
 type
 
@@ -13,18 +13,27 @@ type
 
   TConfigurationFrame = class(TFrame)
     ApiKeyEdit: TLabeledEdit;
+    GameNameEdit: TLabeledEdit;
+    TagLineEdit: TLabeledEdit;
     ProgressBar1: TProgressBar;
-    SpeedButton1: TSpeedButton;
+    RefreshApiKeyButton: TSpeedButton;
     SpeedButton2: TSpeedButton;
   private
 
   public
-
+    procedure Initialize(configurationFilePath: string);
   end;
 
 implementation
 
 {$R *.lfm}
+
+{ TConfigurationFrame }
+
+procedure TConfigurationFrame.Initialize(configurationFilePath: string);
+begin
+
+end;
 
 end.
 

@@ -15,8 +15,8 @@ type
   TForm1 = class(TForm)
     MainMenu1: TMainMenu;
     FileMenuItem: TMenuItem;
-    UpdateMenuItem: TMenuItem;
-    procedure UpdateMenuItemClick(Sender: TObject);
+    ConfigurationMenuItem: TMenuItem;
+    procedure ConfigurationMenuItemClick(Sender: TObject);
   private
     ActiveFrame: TFrame;
   public
@@ -32,7 +32,7 @@ implementation
 
 { TForm1 }
 
-procedure TForm1.UpdateMenuItemClick(Sender: TObject);
+procedure TForm1.ConfigurationMenuItemClick(Sender: TObject);
 begin
   ActiveFrame := TConfigurationFrame.Create(self);
   ActiveFrame.Parent := self;

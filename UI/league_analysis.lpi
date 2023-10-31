@@ -47,7 +47,7 @@
       <Unit>
         <Filename Value="ConfigurationFrameUnit.pas"/>
         <IsPartOfProject Value="True"/>
-        <ComponentName Value="UpdateFrameComponent"/>
+        <ComponentName Value="ConfigurationFrame"/>
         <HasResources Value="True"/>
         <ResourceBaseClass Value="Frame"/>
       </Unit>

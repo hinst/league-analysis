@@ -11,9 +11,9 @@ object Form1: TForm1
     Top = 8
     object FileMenuItem: TMenuItem
       Caption = 'File'
-      object UpdateMenuItem: TMenuItem
-        Caption = 'Update'
-        OnClick = UpdateMenuItemClick
+      object ConfigurationMenuItem: TMenuItem
+        Caption = 'Configuration'
+        OnClick = ConfigurationMenuItemClick
       end
     end
   end
