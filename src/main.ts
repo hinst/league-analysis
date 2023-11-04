@@ -3,14 +3,14 @@ import { App } from './app.ts';
 
 function main() {
     const flags = parse(Deno.args, {
-        boolean: ['update', 'summary', 'JSON'],
+        boolean: ['update', 'summary', 'json'],
         string: ['champion', 'advice'],
     });
     if (!flags.update && !flags.summary && !flags.champion && !flags.advice) {
         console.log('No flags recognized');
         return -1;
     }
-    new App(flags.update, flags.summary, flags.champion, flags.advice).run();
+    new App(flags.update, flags.summary, flags.champion, flags.advice, flags.json).run();
 }
 
 main();

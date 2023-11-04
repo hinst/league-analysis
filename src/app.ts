@@ -21,6 +21,7 @@ export class App {
         private printSummaryEnabled: boolean,
         private championNameInput?: string,
         private adviceQuery?: string,
+        private jsonOutputEnabled?: boolean,
     ) {
     }
 
@@ -63,23 +64,57 @@ export class App {
         return countOfUpdated;
     }
 
-    private printSummary() {
+    private querySummary() {
         const allMatches = Object.values(this.matchInfoMap);
         allMatches.sort((a, b) => a.info.gameCreation - b.info.gameCreation);
-        console.log('Stored matches [' + allMatches.length + ']');
+        let storedMatchesDays: number | undefined;
+        let oldestMatchDate: number | undefined;
+        let newestMatchDate: number | undefined;
         if (allMatches.length > 0) {
-            console.log('  oldest: ' + new Date(allMatches[0].info.gameCreation));
-            console.log('  newest: ' + new Date(allMatches[allMatches.length - 1].info.gameCreation));
-            const duration = (allMatches[allMatches.length - 1].info.gameCreation - allMatches[0].info.gameCreation);
-            console.log('  duration in days: ' + Math.round(duration / 1000 / 60 / 60 / 24));
+            const duration = allMatches[allMatches.length - 1].info.gameCreation -
+                allMatches[0].info.gameCreation;
+            storedMatchesDays = Math.round(duration / 1000 / 60 / 60 / 24);
+            oldestMatchDate = allMatches[0].info.gameCreation;
+            newestMatchDate = allMatches[allMatches.length - 1].info.gameCreation;
         }
         const allChampions = findChampions(allMatches);
-        console.log('Champions [' + Object.keys(allChampions).length + ']');
         const userChampions = sortObjectFieldsByNumber(findChampions(allMatches, this.userId), -1);
-        console.log('Your champions: ');
-        for (const championName in userChampions)
-            console.log('  ' + championName, userChampions[championName],
-                formatPercent(WinRateInfo.getWinRate(allMatches, this.userId, championName).winRate));
+        return {
+            storedMatchesLength: allMatches.length,
+            oldestMatchDate,
+            newestMatchDate,
+            storedMatchesDays,
+            allChampionsLength: Object.keys(allChampions).length,
+            userChampions: Object.keys(userChampions).map(championName => {
+                const winRate = WinRateInfo.getWinRate(allMatches, this.userId, championName);
+                return {
+                    championName: championName,
+                    matchCount: winRate.matchCount,
+                    winRate: winRate.winRate,
+                    victoryCount: winRate.victoryCount,
+                };
+            }),
+        };
+    }
+
+    private printSummary() {
+        const summary = this.querySummary();
+        if (this.jsonOutputEnabled)
+            console.log(JSON.stringify(summary, null, '\t'));
+        else {
+            console.log('Stored matches [' + summary.storedMatchesLength + ']');
+            if (summary.oldestMatchDate != null)
+                console.log('  oldest: ' + new Date(summary.oldestMatchDate));
+            if (summary.newestMatchDate != null)
+                console.log('  newest: ' + new Date(summary.newestMatchDate));
+            if (summary.storedMatchesDays != null)
+                console.log('  duration in days: ' + summary.storedMatchesDays);
+            console.log('Champions [' + summary.allChampionsLength + ']');
+            console.log('Your champions: ');
+            for (const userChampion of summary.userChampions)
+                console.log('  ' + userChampion.championName, userChampion.matchCount,
+                    formatPercent(userChampion.winRate));
+        }
     }
 
     private printChampionSummary(championNameInput: string) {
