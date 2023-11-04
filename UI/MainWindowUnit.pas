@@ -10,31 +10,54 @@ uses
 
 type
 
-  { TForm1 }
+  { TMainWindow }
 
-  TForm1 = class(TForm)
+  TMainWindow = class(TForm)
     MainMenu1: TMainMenu;
     FileMenuItem: TMenuItem;
     ConfigurationMenuItem: TMenuItem;
     procedure ConfigurationMenuItemClick(Sender: TObject);
+    procedure FormCreate(Sender: TObject);
   private
     ActiveFrame: TFrame;
+    procedure ClearFrame;
+    procedure ActivateFrame(frame: TFrame);
   public
-
   end;
 
 var
-  Form1: TForm1;
+  MainWindow: TMainWindow;
 
 implementation
 
 {$R *.lfm}
 
-{ TForm1 }
+{ TMainWindow }
 
-procedure TForm1.ConfigurationMenuItemClick(Sender: TObject);
+procedure TMainWindow.ConfigurationMenuItemClick(Sender: TObject);
 begin
-  ActiveFrame := TConfigurationFrame.Create(self);
+  ClearFrame;
+  ActivateFrame(TConfigurationFrame.Create(self));
+end;
+
+procedure TMainWindow.FormCreate(Sender: TObject);
+begin
+  ClearFrame;
+  ActivateFrame(TConfigurationFrame.Create(self));
+end;
+
+procedure TMainWindow.ClearFrame;
+begin
+  if ActiveFrame <> nil then
+  begin
+    ActiveFrame.Free;
+    ActiveFrame := nil;
+  end;
+end;
+
+procedure TMainWindow.ActivateFrame(frame: TFrame);
+begin
+  ActiveFrame := frame;
   ActiveFrame.Parent := self;
   ActiveFrame.Align := alClient;
 end;

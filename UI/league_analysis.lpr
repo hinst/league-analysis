@@ -1,5 +1,6 @@
 program league_analysis;
 
+{$apptype console}
 {$mode objfpc}{$H+}
 
 uses
@@ -10,7 +11,8 @@ uses
   athreads,
   {$ENDIF}
   Interfaces, // this includes the LCL widgetset
-  Forms, runtimetypeinfocontrols, MainWindowUnit, ConfigurationFrameUnit
+  Forms, runtimetypeinfocontrols, MainWindowUnit, ConfigurationFrameUnit, 
+ConfigurationFileUnit, FilesUnit, JsonUnit
   { you can add units after this };
 
 {$R *.res}
@@ -19,7 +21,7 @@ begin
   RequireDerivedFormResource:=True;
   Application.Scaled:=True;
   Application.Initialize;
-  Application.CreateForm(TForm1, Form1);
+  Application.CreateForm(TMainWindow, MainWindow);
   Application.Run;
 end.
 
