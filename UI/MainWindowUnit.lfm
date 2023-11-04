@@ -1,8 +1,8 @@
 object MainWindow: TMainWindow
-  Left = 523
-  Height = 308
-  Top = 347
-  Width = 397
+  Left = 445
+  Height = 700
+  Top = 207
+  Width = 1200
   Caption = 'League Analysis'
   Menu = MainMenu1
   OnCreate = FormCreate
@@ -12,6 +12,10 @@ object MainWindow: TMainWindow
     Top = 8
     object FileMenuItem: TMenuItem
       Caption = 'File'
+      object SummaryMenuItem: TMenuItem
+        Caption = 'Summary'
+        OnClick = SummaryMenuItemClick
+      end
       object ConfigurationMenuItem: TMenuItem
         Caption = 'Configuration'
         OnClick = ConfigurationMenuItemClick

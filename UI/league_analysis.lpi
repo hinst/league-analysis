@@ -63,6 +63,13 @@
         <Filename Value="JsonUnit.pas"/>
         <IsPartOfProject Value="True"/>
       </Unit>
+      <Unit>
+        <Filename Value="SummaryFrameUnit.pas"/>
+        <IsPartOfProject Value="True"/>
+        <ComponentName Value="SummaryFrame"/>
+        <HasResources Value="True"/>
+        <ResourceBaseClass Value="Frame"/>
+      </Unit>
     </Units>
   </ProjectOptions>
   <CompilerOptions>

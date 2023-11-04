@@ -1,0 +1,55 @@
+object SummaryFrame: TSummaryFrame
+  Left = 0
+  Height = 700
+  Top = 0
+  Width = 1200
+  ClientHeight = 700
+  ClientWidth = 1200
+  TabOrder = 0
+  DesignLeft = 288
+  DesignTop = 137
+  object ChampionBox: TGroupBox
+    Left = 5
+    Height = 323
+    Top = 5
+    Width = 1190
+    Align = alTop
+    BorderSpacing.Around = 5
+    Caption = 'Your champions'
+    ClientHeight = 303
+    ClientWidth = 1186
+    TabOrder = 0
+    object ChampionSummaryListView: TListView
+      Left = 5
+      Height = 293
+      Top = 5
+      Width = 1176
+      Align = alClient
+      BorderSpacing.Around = 5
+      Columns = <      
+        item
+          Caption = 'Champion'
+          MinWidth = 100
+          Width = 10
+        end      
+        item
+          Caption = 'Game count'
+          MinWidth = 100
+          Width = 10
+        end      
+        item
+          Caption = 'Win rate'
+          MinWidth = 100
+          Width = 10
+        end>
+      GridLines = True
+      Items.LazData = {
+        3500000001000000FFFFFFFFFFFFFFFFFFFFFFFF0200000004000000536F6E61
+        03000000313030020000003530FFFFFFFFFFFFFFFF
+      }
+      ReadOnly = True
+      TabOrder = 0
+      ViewStyle = vsReport
+    end
+  end
+end

@@ -3,7 +3,7 @@ import { App } from './app.ts';
 
 function main() {
     const flags = parse(Deno.args, {
-        boolean: ['update', 'summary'],
+        boolean: ['update', 'summary', 'JSON'],
         string: ['champion', 'advice'],
     });
     if (!flags.update && !flags.summary && !flags.champion && !flags.advice) {

@@ -12,7 +12,7 @@ uses
   {$ENDIF}
   Interfaces, // this includes the LCL widgetset
   Forms, runtimetypeinfocontrols, MainWindowUnit, ConfigurationFrameUnit, 
-ConfigurationFileUnit, FilesUnit, JsonUnit
+ConfigurationFileUnit, FilesUnit, JsonUnit, SummaryFrameUnit
   { you can add units after this };
 
 {$R *.res}
