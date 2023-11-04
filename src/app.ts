@@ -70,6 +70,8 @@ export class App {
         if (allMatches.length > 0) {
             console.log('  oldest: ' + new Date(allMatches[0].info.gameCreation));
             console.log('  newest: ' + new Date(allMatches[allMatches.length - 1].info.gameCreation));
+            const duration = (allMatches[allMatches.length - 1].info.gameCreation - allMatches[0].info.gameCreation);
+            console.log('  duration in days: ' + Math.round(duration / 1000 / 60 / 60 / 24));
         }
         const allChampions = findChampions(allMatches);
         console.log('Champions [' + Object.keys(allChampions).length + ']');
