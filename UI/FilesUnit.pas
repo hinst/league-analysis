@@ -8,6 +8,7 @@ uses
   Classes, SysUtils;
 
 function ReadTextFromFile(filePath: string): string;
+function ReadTextFromStream(stream: TStream): string;
 procedure WriteTextToFile(filePath: string; text: string);
 
 implementation
@@ -18,9 +19,16 @@ var
 begin
   stream := TMemoryStream.Create;
   stream.LoadFromFile(filePath);
-  SetLength(result, stream.Size);
-  stream.Read(result[1], stream.Size);
-  stream.Free;
+  result := ReadTextFromStream(stream);
+end;
+
+function ReadTextFromStream(stream: TStream): string;
+var
+  size: Int64;
+begin
+  size := stream.Size;
+  SetLength(result, size);
+  stream.Read(result[1], size);
 end;
 
 procedure WriteTextToFile(filePath: string; text: string);

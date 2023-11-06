@@ -45,7 +45,7 @@ end;
 procedure TMainWindow.FormCreate(Sender: TObject);
 begin
   ClearFrame;
-  ActivateFrame(TConfigurationFrame.Create(self));
+  ActivateFrame(TSummaryFrame.Create(self));
 end;
 
 procedure TMainWindow.SummaryMenuItemClick(Sender: TObject);

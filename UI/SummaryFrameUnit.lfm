@@ -30,22 +30,22 @@ object SummaryFrame: TSummaryFrame
         item
           Caption = 'Champion'
           MinWidth = 100
-          Width = 10
+          Width = 100
         end      
         item
           Caption = 'Game count'
           MinWidth = 100
-          Width = 10
+          Width = 100
         end      
         item
           Caption = 'Win rate'
           MinWidth = 100
-          Width = 10
+          Width = 100
         end>
       GridLines = True
       Items.LazData = {
-        3500000001000000FFFFFFFFFFFFFFFFFFFFFFFF0200000004000000536F6E61
-        03000000313030020000003530FFFFFFFFFFFFFFFF
+        3500000001000000FFFFFFFFFFFFFFFFFFFFFFFF02000000070000004C6F6164
+        696E6701000000300100000030FFFFFFFFFFFFFFFF
       }
       ReadOnly = True
       TabOrder = 0

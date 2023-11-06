@@ -5,7 +5,7 @@ unit SummaryFrameUnit;
 interface
 
 uses
-  Classes, SysUtils, Forms, Controls, ComCtrls, StdCtrls;
+  Classes, SysUtils, Forms, Controls, ComCtrls, StdCtrls, IntegrationUnit;
 
 type
 
@@ -15,6 +15,7 @@ type
     ChampionBox: TGroupBox;
     ChampionSummaryListView: TListView;
   private
+    procedure ReadInfo;
   public
     constructor Create(theOwner: TComponent); override;
   end;
@@ -25,10 +26,20 @@ implementation
 
 { TSummaryFrame }
 
+procedure TSummaryFrame.ReadInfo;
+var
+  integration: TIntegration;
+begin
+  integration := TIntegration.Create;
+  integration.ReadSummary;
+  integration.Free;
+end;
+
 constructor TSummaryFrame.Create(theOwner: TComponent);
 begin
   inherited Create(theOwner);
   ChampionSummaryListView.ViewStyle := vsReport;
+  ReadInfo;
 end;
 
 end.
