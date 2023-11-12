@@ -126,3 +126,16 @@ export class ChampionWinRateInfo {
         return monthlyWinRateMap;
     }
 }
+
+export class ChampionWinRateSummary {
+    constructor(
+        public championName: string,
+        public winRate: WinRateInfo,
+        public bestAllies: ChampionWinRateInfo[],
+        public worstAllies: ChampionWinRateInfo[],
+        public easiestEnemies: ChampionWinRateInfo[],
+        public hardestEnemies: ChampionWinRateInfo[],
+        public winRateMonths: Record<string, WinRateInfo>,
+    ) {
+    }
+}
