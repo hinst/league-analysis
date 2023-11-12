@@ -107,7 +107,7 @@ procedure TSummaryFrame.ReceiveSummaryInfo(pSummary: {*TSummaryInfo*} PtrInt);
 var
   summary: TSummaryInfo;
   i: Integer;
-  champion: TUserChampionSummary;
+  champion: TChampionSummary;
   timeRangeFrom, timeRangeTo: TDateTime;
 begin
   summary := TSummaryInfo(pSummary);
@@ -126,9 +126,9 @@ begin
         champion := summary.UserChampions.Items[i];
         ChampionSummaryListView.AddItem(champion.ChampionName, nil);
         ChampionSummaryListView.Items[ChampionSummaryListView.Items.Count - 1]
-          .SubItems.Add(IntToStr(champion.MatchCount));
+          .SubItems.Add(IntToStr(champion.WinRate.MatchCount));
         ChampionSummaryListView.Items[ChampionSummaryListView.Items.Count - 1]
-          .SubItems.Add(FloatToStrF(champion.WinRate * 100, ffFixed, 0, 1));
+          .SubItems.Add(FloatToStrF(champion.WinRate.WinRate * 100, ffFixed, 0, 1));
 			end;
 		end
     else

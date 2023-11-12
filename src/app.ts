@@ -88,12 +88,7 @@ export class App {
             allChampionsLength: Object.keys(allChampions).length,
             userChampions: Object.keys(userChampions).map(championName => {
                 const winRate = WinRateInfo.getWinRate(allMatches, this.userId, championName);
-                return {
-                    championName: championName,
-                    matchCount: winRate.matchCount,
-                    winRate: winRate.winRate,
-                    victoryCount: winRate.victoryCount,
-                };
+                return { championName, winRate };
             }),
         };
     }
@@ -113,8 +108,8 @@ export class App {
             console.log('Champions [' + summary.allChampionsLength + ']');
             console.log('Your champions: ');
             for (const userChampion of summary.userChampions)
-                console.log('  ' + userChampion.championName, userChampion.matchCount,
-                    formatPercent(userChampion.winRate));
+                console.log('  ' + userChampion.championName, userChampion.winRate.matchCount,
+                    formatPercent(userChampion.winRate.winRate));
         }
     }
 
