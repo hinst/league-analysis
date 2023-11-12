@@ -9,23 +9,23 @@ object SummaryFrame: TSummaryFrame
   DesignLeft = 288
   DesignTop = 137
   object ChampionBox: TGroupBox
-    Left = 5
+    Left = 8
     Height = 323
-    Top = 5
-    Width = 1190
+    Top = 8
+    Width = 1184
     Align = alTop
-    BorderSpacing.Around = 5
+    BorderSpacing.Around = 8
     Caption = 'Your champions'
     ClientHeight = 303
-    ClientWidth = 1186
+    ClientWidth = 1180
     TabOrder = 0
     object ChampionSummaryListView: TListView
-      Left = 5
-      Height = 293
-      Top = 5
-      Width = 1176
+      Left = 8
+      Height = 287
+      Top = 8
+      Width = 1164
       Align = alClient
-      BorderSpacing.Around = 5
+      BorderSpacing.Around = 8
       Columns = <      
         item
           Caption = 'Champion'
@@ -44,8 +44,8 @@ object SummaryFrame: TSummaryFrame
         end>
       GridLines = True
       Items.LazData = {
-        3500000001000000FFFFFFFFFFFFFFFFFFFFFFFF02000000070000004C6F6164
-        696E6701000000300100000030FFFFFFFFFFFFFFFF
+        3800000001000000FFFFFFFFFFFFFFFFFFFFFFFF020000000A0000004C6F6164
+        696E672E2E2E01000000300100000030FFFFFFFFFFFFFFFF
       }
       ReadOnly = True
       TabOrder = 0

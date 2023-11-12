@@ -31,7 +31,6 @@ begin
   begin
     result := TSummaryInformation.Create;
     result.ReadFromJson(TJSONObject(data));
-    WriteLn(result.StoredMatchesLength);
   end
   else
     result := nil;
