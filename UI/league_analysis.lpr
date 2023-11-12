@@ -15,7 +15,7 @@ uses
   ConfigurationFileUnit, FilesUnit, JsonUnit, SummaryFrameUnit, IntegrationUnit,
   IntegrationDataUnit, CommonUnit
   { you can add units after this }
-  , SysUtils;
+  , SysUtils, AlliesAndEnemiesFrameUnit;
 
 {$R *.res}
 

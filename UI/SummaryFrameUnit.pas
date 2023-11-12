@@ -5,7 +5,8 @@ unit SummaryFrameUnit;
 interface
 
 uses
-  Classes, SysUtils, Forms, Controls, ComCtrls, StdCtrls, IntegrationUnit, IntegrationDataUnit;
+  Classes, SysUtils, Forms, Controls, ComCtrls, StdCtrls, DateUtils, Graphics,
+  IntegrationUnit, IntegrationDataUnit, AlliesAndEnemiesFrameUnit;
 
 type
 
@@ -14,8 +15,14 @@ type
   TSummaryFrame = class(TFrame)
     ChampionBox: TGroupBox;
     ChampionSummaryListView: TListView;
+		ChampionInfoBox: TGroupBox;
+		ChampionInfoTabs: TTabControl;
+		procedure ChampionSummaryListViewSelectItem(Sender: TObject; Item: TListItem; Selected: Boolean);
   private
+    ChampionFrame: TFrame;
+    procedure ClearChampionFrame;
     procedure ReadSummaryInfo;
+    procedure ReadChampionInfo;
   protected
     procedure ReceiveSummaryInfo(pSummary: PtrInt);
   public
@@ -50,15 +57,37 @@ end;
 procedure TReadSummaryInfoThread.Execute;
 var
   integration: TIntegration;
-  summary: TSummaryInformation;
+  summary: TSummaryInfo;
 begin
-  integration := TIntegration.Create;
-  summary := integration.ReadSummary;
-  integration.Free;
-  Application.QueueAsyncCall(@Owner.ReceiveSummaryInfo, PtrInt(summary));
+  try
+    integration := TIntegration.Create;
+    summary := integration.ReadSummary;
+    integration.Free;
+    Application.QueueAsyncCall(@Owner.ReceiveSummaryInfo, PtrInt(summary));
+	except
+    Application.QueueAsyncCall(@Owner.ReceiveSummaryInfo, 0);
+	end;
 end;
 
 { TSummaryFrame }
+
+procedure TSummaryFrame.ChampionSummaryListViewSelectItem(Sender: TObject; Item: TListItem; Selected: Boolean);
+begin
+  ClearChampionFrame;
+  ChampionFrame := TAlliesAndEnemiesFrame.Create(self);
+  ChampionFrame.Parent := ChampionInfoTabs;
+  ChampionFrame.Align := alClient;
+  ChampionFrame.Color := clDefault;
+end;
+
+procedure TSummaryFrame.ClearChampionFrame;
+begin
+  if ChampionFrame <> nil then
+  begin
+    ChampionFrame.Free;
+    ChampionFrame := nil;
+	end;
+end;
 
 procedure TSummaryFrame.ReadSummaryInfo;
 var
@@ -69,19 +98,29 @@ begin
   thread.Start;
 end;
 
-procedure TSummaryFrame.ReceiveSummaryInfo(pSummary: {*TSummaryInformation*} PtrInt);
+procedure TSummaryFrame.ReadChampionInfo;
+begin
+
+end;
+
+procedure TSummaryFrame.ReceiveSummaryInfo(pSummary: {*TSummaryInfo*} PtrInt);
 var
-  summary: TSummaryInformation;
+  summary: TSummaryInfo;
   i: Integer;
   champion: TUserChampionSummary;
+  timeRangeFrom, timeRangeTo: TDateTime;
 begin
-  summary := TSummaryInformation(pSummary);
+  summary := TSummaryInfo(pSummary);
   ChampionSummaryListView.Clear;
   if summary <> nil then
   begin
     if summary.UserChampions <> nil then
     begin
-  		ChampionBox.Caption := 'Your champions: ' + IntToStr(summary.UserChampions.Count);
+      timeRangeFrom := UniversalTimeToLocal(UnixToDateTime(summary.OldestMatchDate div 1000));
+      timeRangeTo := UniversalTimeToLocal(UnixToDateTime(summary.NewestMatchDate div 1000));
+  		ChampionBox.Caption := 'Your champions [' + IntToStr(summary.UserChampions.Count) + '] ' +
+        ' in time range ' + FormatDateTime('yyyy-mm-dd hh:nn', timeRangeFrom) +
+        ' ... ' + FormatDateTime('yyyy-mm-dd hh:nn', timeRangeTo);
       for i := 0 to summary.UserChampions.Count - 1 do
       begin
         champion := summary.UserChampions.Items[i];
@@ -96,7 +135,9 @@ begin
     begin
       ChampionBox.Caption := 'Your champions: not found';
 		end;
-	end;
+	end
+  else
+    ChampionBox.Caption := 'Your champions: error';
   summary.Free;
 end;
 

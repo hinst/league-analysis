@@ -1,0 +1,52 @@
+object AlliesAndEnemiesFrame: TAlliesAndEnemiesFrame
+  Left = 0
+  Height = 350
+  Top = 0
+  Width = 1000
+  ClientHeight = 350
+  ClientWidth = 1000
+  TabOrder = 0
+  DesignLeft = 424
+  DesignTop = 351
+  object BestAlliesBox: TGroupBox
+    Left = 5
+    Height = 340
+    Top = 5
+    Width = 200
+    Align = alLeft
+    BorderSpacing.Around = 5
+    Caption = 'Best allies'
+    TabOrder = 0
+  end
+  object WorstAlliesBox: TGroupBox
+    Left = 210
+    Height = 340
+    Top = 5
+    Width = 200
+    Align = alLeft
+    BorderSpacing.Around = 5
+    Caption = 'Worst allies'
+    TabOrder = 1
+    OnClick = WorstAlliesBoxClick
+  end
+  object EasiestEnemiesBox: TGroupBox
+    Left = 415
+    Height = 340
+    Top = 5
+    Width = 200
+    Align = alLeft
+    BorderSpacing.Around = 5
+    Caption = 'Easiest enemies'
+    TabOrder = 2
+  end
+  object HardestEnemiesBox: TGroupBox
+    Left = 620
+    Height = 340
+    Top = 5
+    Width = 200
+    Align = alLeft
+    BorderSpacing.Around = 5
+    Caption = 'Hardest enemies'
+    TabOrder = 3
+  end
+end

@@ -13,14 +13,15 @@ type
 
   TIntegration = class
   public
-    function ReadSummary: TSummaryInformation;
+    function ReadSummary: TSummaryInfo;
+    function ReadChampion: TChampionInfo;
   end;
 
 implementation
 
 { TIntegration }
 
-function TIntegration.ReadSummary: TSummaryInformation;
+function TIntegration.ReadSummary: TSummaryInfo;
 var
   output: string;
   data: TJSONData;
@@ -29,12 +30,17 @@ begin
   data := GetJSON(output);
   if data is TJSONObject then
   begin
-    result := TSummaryInformation.Create;
+    result := TSummaryInfo.Create;
     result.ReadFromJson(TJSONObject(data));
   end
   else
     result := nil;
   data.Free;
+end;
+
+function TIntegration.ReadChampion: TChampionInfo;
+begin
+
 end;
 
 end.

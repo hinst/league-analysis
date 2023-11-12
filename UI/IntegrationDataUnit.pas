@@ -20,19 +20,22 @@ type
     procedure ReadFromJson(data: TJSONObject);
 	end;
 
-  { TSummaryInformation }
+  { TSummaryInfo }
 
-  TSummaryInformation = class
+  TSummaryInfo = class
   public
     StoredMatchesLength: Integer;
-    OldestMatchDate: TDateTime;
-    NewestMatchDate: TDateTime;
+    OldestMatchDate: Int64;
+    NewestMatchDate: Int64;
     StoredMatchesDays: Integer;
     AllChampionsLength: Integer;
     UserChampions: specialize TFPGObjectList<TUserChampionSummary>;
     procedure ReadFromJson(data: TJSONObject);
     destructor Destroy; override;
   end;
+
+  TChampionInfo = class
+	end;
 
 implementation
 
@@ -46,9 +49,9 @@ begin
   VictoryCount := data.Get('victoryCount', Int64(0));
 end;
 
-{ TSummaryInformation }
+{ TSummaryInfo }
 
-procedure TSummaryInformation.ReadFromJson(data: TJSONObject);
+procedure TSummaryInfo.ReadFromJson(data: TJSONObject);
 var
   userChampionsArray: TJSONArray = nil;
   i: Integer;
@@ -77,7 +80,7 @@ begin
 	end;
 end;
 
-destructor TSummaryInformation.Destroy;
+destructor TSummaryInfo.Destroy;
 begin
   UserChampions.Free;
   UserChampions := nil;
