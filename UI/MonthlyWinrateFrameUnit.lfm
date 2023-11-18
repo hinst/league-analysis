@@ -39,5 +39,7 @@ object MonthlyWinrateFrame: TMonthlyWinrateFrame
     Align = alClient
     object ChartTimeSeries: TLineSeries
     end
+    object MatchCountSeries: TLineSeries
+    end
   end
 end
