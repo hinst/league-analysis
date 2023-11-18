@@ -147,8 +147,6 @@ export class App {
         const yourChampions = findChampions(allMatches, this.userId);
         const championName = findByEditingDistance(Object.keys(yourChampions), championNameInput);
         if (championName) {
-            console.log(championName + ' [' + yourChampions[championName] + '] ' +
-                formatPercent(WinRateInfo.getWinRate(allMatches, this.userId, championName).winRate));
             const stats = ChampionWinRateInfo.build(allMatches, this.userId, championName);
             const bestAllies = ChampionWinRateInfo.sortTop(stats, App.SIGNIFICANT_STATISTIC_THRESHOLD, Team.ALLY, -1);
             const worstAllies = ChampionWinRateInfo.sortTop(stats, App.SIGNIFICANT_STATISTIC_THRESHOLD, Team.ALLY, 1);
