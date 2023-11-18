@@ -89,6 +89,7 @@
         <Filename Value="AlliesAndEnemiesFrameUnit.pas"/>
         <IsPartOfProject Value="True"/>
         <ComponentName Value="AlliesAndEnemiesFrame"/>
+        <HasResources Value="True"/>
         <ResourceBaseClass Value="Frame"/>
       </Unit>
     </Units>

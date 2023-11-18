@@ -14,7 +14,7 @@ type
   TIntegration = class
   public
     function ReadSummary: TSummaryInfo;
-    function ReadChampion: TChampionInfo;
+    function ReadChampion(const championName: string): TChampionWinRateSummary;
   end;
 
 implementation
@@ -38,9 +38,21 @@ begin
   data.Free;
 end;
 
-function TIntegration.ReadChampion: TChampionInfo;
+function TIntegration.ReadChampion(const championName: string): TChampionWinRateSummary;
+var
+  output: string;
+  data: TJSONData;
 begin
-
+  RunCommand('deno', ['task', 'run', '--champion=' + championName, '--json'], output);
+  data := GetJSON(output);
+  if data is TJSONObject then
+  begin
+    result := TChampionWinRateSummary.Create;
+    result.ReadFromJson(TJSONObject(data));
+  end
+  else
+    result := nil;
+  data.Free;
 end;
 
 end.

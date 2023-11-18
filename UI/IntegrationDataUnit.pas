@@ -19,6 +19,7 @@ type
     VictoryCount: Int64;
     property WinRate: Double read GetWinRate;
     procedure ReadFromJson(jsonObject: TJSONObject);
+    class function CreateFromJson(jsonObject: TJSONObject): TWinRateInfo;
 	end;
 
 	{ TChampionSummary }
@@ -45,7 +46,33 @@ type
     destructor Destroy; override;
   end;
 
-  TChampionInfo = class
+  { TChampionWinRateInfo }
+
+  TChampionWinRateInfo = class
+  public
+    ChampionName: string;
+    AllyInfo: TWinRateInfo;
+    EnemyInfo: TWinRateInfo;
+    procedure ReadFromJson(data: TJSONObject);
+    destructor Destroy; override;
+  end;
+
+  TChampionWinRateInfoList = specialize TFPGObjectList<TChampionWinRateInfo>;
+
+  { TChampionWinRateSummary }
+
+  TChampionWinRateSummary = class
+  public
+    ChampionName: string;
+    WinRate: TWinRateInfo;
+    BestAllies: TChampionWinRateInfoList;
+    WorstAllies: TChampionWinRateInfoList;
+    EasiestEnemies: TChampionWinRateInfoList;
+    HardestEnemies: TChampionWinRateInfoList;
+    procedure ReadFromJson(data: TJSONObject);
+    destructor Destroy; override;
+  private
+    function ReadChampionList(data: TJSONObject; const fieldName: string): TChampionWinRateInfoList;
 	end;
 
 implementation
@@ -66,28 +93,23 @@ begin
   VictoryCount := jsonObject.Get('victoryCount', Int64(0));
 end;
 
+class function TWinRateInfo.CreateFromJson(jsonObject: TJSONObject): TWinRateInfo;
+begin
+  result := TWinRateInfo.Create;
+  result.ReadFromJson(jsonObject);
+end;
+
 { TChampionSummary }
 
 procedure TChampionSummary.ReadFromJson(data: TJSONObject);
-var
-  winRateObject: TJSONObject;
 begin
   ChampionName := data.Get('championName', '');
-  winRateObject := data.Get('winRate', TJSONObject(nil));
-  if winRateObject <> nil then
-  begin
-    WinRate := TWinRateInfo.Create;
-    WinRate.ReadFromJson(winRateObject);
-  end;
+  WinRate := TWinRateInfo.CreateFromJson(data.Get('winRate', TJSONObject(nil)));
 end;
 
 destructor TChampionSummary.Destroy;
 begin
-  if WinRate <> nil then
-  begin
-    WinRate.Free;
-    WinRate := nil;
-  end;
+  FreeAndNil(WinRate);
   inherited Destroy;
 end;
 
@@ -108,7 +130,8 @@ begin
   userChampionsArray := data.Get('userChampions', userChampionsArray);
   if userChampionsArray <> nil then
   begin
-  	UserChampions := specialize TFPGObjectList<TChampionSummary>.Create(true);
+  	UserChampions := specialize TFPGObjectList<TChampionSummary>.Create;
+    UserChampions.Capacity := userChampionsArray.Count;
     for i := 0 to userChampionsArray.Count - 1 do
     begin
       userChampionData := userChampionsArray[i];
@@ -127,6 +150,66 @@ begin
   UserChampions.Free;
   UserChampions := nil;
   inherited Destroy;
+end;
+
+{ TChampionWinRateInfo }
+
+procedure TChampionWinRateInfo.ReadFromJson(data: TJSONObject);
+begin
+  ChampionName := data.Get('championName', '');
+  AllyInfo := TWinRateInfo.CreateFromJson(data.Get('allyInfo', TJSONObject(nil)));
+  EnemyInfo := TWinRateInfo.CreateFromJson(data.Get('enemyInfo', TJSONObject(nil)));
+end;
+
+destructor TChampionWinRateInfo.Destroy;
+begin
+  FreeAndNil(AllyInfo);
+  FreeAndNil(EnemyInfo);
+  inherited Destroy;
+end;
+
+{ TChampionWinRateSummary }
+
+procedure TChampionWinRateSummary.ReadFromJson(data: TJSONObject);
+begin
+  ChampionName := data.Get('championName', '');
+  WinRate := TWinRateInfo.CreateFromJson(data.Get('winRate', TJSONObject(nil)));
+  BestAllies := ReadChampionList(data, 'bestAllies');
+  WorstAllies := ReadChampionList(data, 'worstAllies');
+  EasiestEnemies := ReadChampionList(data, 'easiestEnemies');
+  HardestEnemies := ReadChampionList(data, 'hardestEnemies');
+end;
+
+destructor TChampionWinRateSummary.Destroy;
+begin
+  FreeAndNil(WinRate);
+  FreeAndNil(BestAllies);
+  FreeAndNil(WorstAllies);
+  FreeAndNil(EasiestEnemies);
+  FreeAndNil(HardestEnemies);
+  inherited Destroy;
+end;
+
+function TChampionWinRateSummary.ReadChampionList(data: TJSONObject; const fieldName: string): TChampionWinRateInfoList;
+var
+  jsonArray: TJSONArray;
+  i: Integer;
+  championWinRateInfo: TChampionWinRateInfo;
+begin
+  jsonArray := data.Get(fieldName, TJSONArray(nil));
+  if jsonArray <> nil then
+  begin
+    result := TChampionWinRateInfoList.Create;
+    result.Capacity := jsonArray.Count;
+    for i := 0 to jsonArray.Count - 1 do
+    begin
+      championWinRateInfo := TChampionWinRateInfo.Create;
+      championWinRateInfo.ReadFromJson(jsonArray.Items[i] as TJSONObject);
+      result.Add(championWinRateInfo);
+    end;
+  end
+  else
+    result := nil;
 end;
 
 end.

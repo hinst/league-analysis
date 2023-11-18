@@ -22,9 +22,10 @@ type
     ChampionFrame: TFrame;
     procedure ClearChampionFrame;
     procedure ReadSummaryInfo;
-    procedure ReadChampionInfo;
+    procedure ReadChampionInfo(const aChampionName: string);
   protected
     procedure ReceiveSummaryInfo(pSummary: PtrInt);
+    procedure ReceiveChampionInfo(pInfo: PtrInt);
   public
     constructor Create(theOwner: TComponent); override;
   end;
@@ -46,28 +47,17 @@ type
     constructor Create(aOwner: TSummaryFrame);
 	end;
 
-{ TReadInfoThread }
+  { TReadChampionInfoThread }
 
-constructor TReadSummaryInfoThread.Create(aOwner: TSummaryFrame);
-begin
-  inherited Create(true);
-  Owner := aOwner;
-end;
-
-procedure TReadSummaryInfoThread.Execute;
-var
-  integration: TIntegration;
-  summary: TSummaryInfo;
-begin
-  try
-    integration := TIntegration.Create;
-    summary := integration.ReadSummary;
-    integration.Free;
-    Application.QueueAsyncCall(@Owner.ReceiveSummaryInfo, PtrInt(summary));
-	except
-    Application.QueueAsyncCall(@Owner.ReceiveSummaryInfo, 0);
-	end;
-end;
+  TReadChampionInfoThread = class(TThread)
+  private
+    Owner: TSummaryFrame;
+    ChampionName: string;
+  protected
+    procedure Execute; override;
+  public
+    constructor Create(aOwner: TSummaryFrame; const aChampionName: string);
+  end;
 
 { TSummaryFrame }
 
@@ -78,6 +68,7 @@ begin
   ChampionFrame.Parent := ChampionInfoTabs;
   ChampionFrame.Align := alClient;
   ChampionFrame.Color := clDefault;
+  ReadChampionInfo(Item.Caption);
 end;
 
 procedure TSummaryFrame.ClearChampionFrame;
@@ -93,14 +84,19 @@ procedure TSummaryFrame.ReadSummaryInfo;
 var
   thread: TReadSummaryInfoThread;
 begin
+  ChampionSummaryListView.Enabled := false;
   thread := TReadSummaryInfoThread.Create(self);
   thread.FreeOnTerminate := true;
   thread.Start;
 end;
 
-procedure TSummaryFrame.ReadChampionInfo;
+procedure TSummaryFrame.ReadChampionInfo(const aChampionName: string);
+var
+  thread: TReadChampionInfoThread;
 begin
-
+  thread := TReadChampionInfoThread.Create(self, aChampionName);
+  thread.FreeOnTerminate := true;
+  thread.Start;
 end;
 
 procedure TSummaryFrame.ReceiveSummaryInfo(pSummary: {*TSummaryInfo*} PtrInt);
@@ -139,6 +135,19 @@ begin
   else
     ChampionBox.Caption := 'Your champions: error';
   summary.Free;
+  ChampionSummaryListView.Enabled := true;
+end;
+
+procedure TSummaryFrame.ReceiveChampionInfo(pInfo: PtrInt);
+var
+  info: TChampionWinRateSummary;
+begin
+  info := TChampionWinRateSummary(pInfo);
+  if info <> nil then
+  begin
+
+  end;
+  info.Free;
 end;
 
 constructor TSummaryFrame.Create(theOwner: TComponent);
@@ -146,6 +155,53 @@ begin
   inherited Create(theOwner);
   ChampionSummaryListView.ViewStyle := vsReport;
   ReadSummaryInfo;
+end;
+
+{ TReadSummaryInfoThread }
+
+constructor TReadSummaryInfoThread.Create(aOwner: TSummaryFrame);
+begin
+  inherited Create(true);
+  Owner := aOwner;
+end;
+
+procedure TReadSummaryInfoThread.Execute;
+var
+  integration: TIntegration;
+  summary: TSummaryInfo;
+begin
+  try
+    integration := TIntegration.Create;
+    summary := integration.ReadSummary;
+    integration.Free;
+    Application.QueueAsyncCall(@Owner.ReceiveSummaryInfo, PtrInt(summary));
+	except
+    Application.QueueAsyncCall(@Owner.ReceiveSummaryInfo, 0);
+	end;
+end;
+
+{ TReadChampionInfoThread }
+
+constructor TReadChampionInfoThread.Create(aOwner: TSummaryFrame; const aChampionName: string);
+begin
+  inherited Create(true);
+  Owner := aOwner;
+  ChampionName := aChampionName;
+end;
+
+procedure TReadChampionInfoThread.Execute;
+var
+  integration: TIntegration;
+  summary: TChampionWinRateSummary;
+begin
+  try
+    integration := TIntegration.Create;
+    summary := integration.ReadChampion(ChampionName);
+    integration.Free;
+    Application.QueueAsyncCall(@Owner.ReceiveChampionInfo, PtrInt(summary));
+	except
+    Application.QueueAsyncCall(@Owner.ReceiveChampionInfo, 0);
+	end;
 end;
 
 end.
