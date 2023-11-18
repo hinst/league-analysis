@@ -5,23 +5,25 @@ unit AlliesAndEnemiesFrameUnit;
 interface
 
 uses
-    Classes, SysUtils, Forms, Controls, StdCtrls;
+  Classes, SysUtils, Forms, Controls, StdCtrls, ComCtrls, IntegrationDataUnit;
 
 type
 
-		{ TAlliesAndEnemiesFrame }
+	{ TAlliesAndEnemiesFrame }
 
-    TAlliesAndEnemiesFrame = class(TFrame)
-				BestAlliesBox: TGroupBox;
-				WorstAlliesBox: TGroupBox;
-				EasiestEnemiesBox: TGroupBox;
-				HardestEnemiesBox: TGroupBox;
-				procedure WorstAlliesBoxClick(Sender: TObject);
-    private
-
-    public
-
-    end;
+  TAlliesAndEnemiesFrame = class(TFrame)
+ 		BestAlliesBox: TGroupBox;
+    BestAlliesListView: TListView;
+    EasiestEnemiesListView: TListView;
+    HardestEnemiesListView: TListView;
+    WorstAlliesListView: TListView;
+  	WorstAlliesBox: TGroupBox;
+	  EasiestEnemiesBox: TGroupBox;
+		HardestEnemiesBox: TGroupBox;
+  private
+  public
+    procedure ShowInfo(summary: TChampionWinRateSummary);
+  end;
 
 implementation
 
@@ -29,7 +31,7 @@ implementation
 
 { TAlliesAndEnemiesFrame }
 
-procedure TAlliesAndEnemiesFrame.WorstAlliesBoxClick(Sender: TObject);
+procedure TAlliesAndEnemiesFrame.ShowInfo(summary: TChampionWinRateSummary);
 begin
 
 end;

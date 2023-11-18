@@ -16,7 +16,19 @@ object AlliesAndEnemiesFrame: TAlliesAndEnemiesFrame
     Align = alLeft
     BorderSpacing.Around = 5
     Caption = 'Best allies'
+    ClientHeight = 320
+    ClientWidth = 196
     TabOrder = 0
+    object BestAlliesListView: TListView
+      Left = 5
+      Height = 310
+      Top = 5
+      Width = 186
+      Align = alClient
+      BorderSpacing.Around = 5
+      Columns = <>
+      TabOrder = 0
+    end
   end
   object WorstAlliesBox: TGroupBox
     Left = 210
@@ -26,8 +38,19 @@ object AlliesAndEnemiesFrame: TAlliesAndEnemiesFrame
     Align = alLeft
     BorderSpacing.Around = 5
     Caption = 'Worst allies'
+    ClientHeight = 320
+    ClientWidth = 196
     TabOrder = 1
-    OnClick = WorstAlliesBoxClick
+    object WorstAlliesListView: TListView
+      Left = 5
+      Height = 310
+      Top = 5
+      Width = 186
+      Align = alClient
+      BorderSpacing.Around = 5
+      Columns = <>
+      TabOrder = 0
+    end
   end
   object EasiestEnemiesBox: TGroupBox
     Left = 415
@@ -37,7 +60,19 @@ object AlliesAndEnemiesFrame: TAlliesAndEnemiesFrame
     Align = alLeft
     BorderSpacing.Around = 5
     Caption = 'Easiest enemies'
+    ClientHeight = 320
+    ClientWidth = 196
     TabOrder = 2
+    object EasiestEnemiesListView: TListView
+      Left = 5
+      Height = 310
+      Top = 5
+      Width = 186
+      Align = alClient
+      BorderSpacing.Around = 5
+      Columns = <>
+      TabOrder = 0
+    end
   end
   object HardestEnemiesBox: TGroupBox
     Left = 620
@@ -47,6 +82,18 @@ object AlliesAndEnemiesFrame: TAlliesAndEnemiesFrame
     Align = alLeft
     BorderSpacing.Around = 5
     Caption = 'Hardest enemies'
+    ClientHeight = 320
+    ClientWidth = 196
     TabOrder = 3
+    object HardestEnemiesListView: TListView
+      Left = 5
+      Height = 310
+      Top = 5
+      Width = 186
+      Align = alClient
+      BorderSpacing.Around = 5
+      Columns = <>
+      TabOrder = 0
+    end
   end
 end

@@ -64,11 +64,8 @@ type
 procedure TSummaryFrame.ChampionSummaryListViewSelectItem(Sender: TObject; Item: TListItem; Selected: Boolean);
 begin
   ClearChampionFrame;
-  ChampionFrame := TAlliesAndEnemiesFrame.Create(self);
-  ChampionFrame.Parent := ChampionInfoTabs;
-  ChampionFrame.Align := alClient;
-  ChampionFrame.Color := clDefault;
-  ReadChampionInfo(Item.Caption);
+  if Selected then
+    ReadChampionInfo(Item.Caption);
 end;
 
 procedure TSummaryFrame.ClearChampionFrame;
@@ -141,11 +138,17 @@ end;
 procedure TSummaryFrame.ReceiveChampionInfo(pInfo: PtrInt);
 var
   info: TChampionWinRateSummary;
+  alliesAndEnemiesFrame: TAlliesAndEnemiesFrame;
 begin
   info := TChampionWinRateSummary(pInfo);
   if info <> nil then
   begin
-
+    alliesAndEnemiesFrame := TAlliesAndEnemiesFrame.Create(self);
+    alliesAndEnemiesFrame.ShowInfo(info);
+    ChampionFrame := alliesAndEnemiesFrame;
+    ChampionFrame.Parent := ChampionInfoTabs;
+    ChampionFrame.Align := alClient;
+    ChampionFrame.Color := clDefault;
   end;
   info.Free;
 end;

@@ -22,6 +22,17 @@ type
     class function CreateFromJson(jsonObject: TJSONObject): TWinRateInfo;
 	end;
 
+  { TMonthWinRateInfo }
+
+  TMonthWinRateInfo = class
+  public
+    Key: string;
+    Value: TWinRateInfo;
+    destructor Destroy; override;
+  end;
+
+  TMonthWinRateInfoList = specialize TFPGObjectList<TMonthWinRateInfo>;
+
 	{ TChampionSummary }
 
   TChampionSummary = class
@@ -69,10 +80,12 @@ type
     WorstAllies: TChampionWinRateInfoList;
     EasiestEnemies: TChampionWinRateInfoList;
     HardestEnemies: TChampionWinRateInfoList;
+    WinRateMonths: TMonthWinRateInfoList;
     procedure ReadFromJson(data: TJSONObject);
     destructor Destroy; override;
   private
-    function ReadChampionList(data: TJSONObject; const fieldName: string): TChampionWinRateInfoList;
+    class function ReadChampionList(data: TJSONObject; const fieldName: string): TChampionWinRateInfoList;
+    class function ReadMonthsWinRate(data: TJSONObject): TMonthWinRateInfoList;
 	end;
 
 implementation
@@ -97,6 +110,15 @@ class function TWinRateInfo.CreateFromJson(jsonObject: TJSONObject): TWinRateInf
 begin
   result := TWinRateInfo.Create;
   result.ReadFromJson(jsonObject);
+end;
+
+{ TMonthWinRateInfo }
+
+destructor TMonthWinRateInfo.Destroy;
+begin
+  Key := '';
+  FreeAndNil(Value);
+  inherited Destroy;
 end;
 
 { TChampionSummary }
@@ -178,6 +200,7 @@ begin
   WorstAllies := ReadChampionList(data, 'worstAllies');
   EasiestEnemies := ReadChampionList(data, 'easiestEnemies');
   HardestEnemies := ReadChampionList(data, 'hardestEnemies');
+  WinRateMonths := ReadMonthsWinRate(data.Get('winRateMonths', TJSONObject(nil)));
 end;
 
 destructor TChampionWinRateSummary.Destroy;
@@ -187,10 +210,11 @@ begin
   FreeAndNil(WorstAllies);
   FreeAndNil(EasiestEnemies);
   FreeAndNil(HardestEnemies);
+  FreeAndNil(WinRateMonths);
   inherited Destroy;
 end;
 
-function TChampionWinRateSummary.ReadChampionList(data: TJSONObject; const fieldName: string): TChampionWinRateInfoList;
+class function TChampionWinRateSummary.ReadChampionList(data: TJSONObject; const fieldName: string): TChampionWinRateInfoList;
 var
   jsonArray: TJSONArray;
   i: Integer;
@@ -206,6 +230,27 @@ begin
       championWinRateInfo := TChampionWinRateInfo.Create;
       championWinRateInfo.ReadFromJson(jsonArray.Items[i] as TJSONObject);
       result.Add(championWinRateInfo);
+    end;
+  end
+  else
+    result := nil;
+end;
+
+class function TChampionWinRateSummary.ReadMonthsWinRate(data: TJSONObject): TMonthWinRateInfoList;
+var
+  i: Integer;
+  monthWinRateInfo: TMonthWinRateInfo;
+begin
+  if data <> nil then
+  begin
+    result := TMonthWinRateInfoList.Create;
+    result.Capacity := data.Count;
+    for i := 0 to data.Count - 1 do
+    begin
+      monthWinRateInfo := TMonthWinRateInfo.Create;
+      monthWinRateInfo.Key := data.Names[i];
+      monthWinRateInfo.Value := TWinRateInfo.CreateFromJson(data.Elements[monthWinRateInfo.Key] as TJsonObject);
+      result.Add(monthWinRateInfo);
     end;
   end
   else

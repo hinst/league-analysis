@@ -105,6 +105,7 @@ export class ChampionWinRateInfo {
         return winRateInfoArray;
     }
 
+    /** @returns Month key format: YYYY-MM */
     static getWinRateByMonth(matches: MatchInfoRecord[], userId: string, playerChampionName: string) {
         const isDesiredParticipant = (participant: MatchParticipantInfo) =>
             participant.puuid === userId && participant.championName === playerChampionName;
