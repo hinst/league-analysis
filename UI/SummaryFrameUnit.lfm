@@ -69,6 +69,7 @@ object SummaryFrame: TSummaryFrame
       Height = 355
       Top = 5
       Width = 1176
+      OnChange = ChampionInfoTabsChange
       TabIndex = 0
       Tabs.Strings = (
         'Allies and enemies'

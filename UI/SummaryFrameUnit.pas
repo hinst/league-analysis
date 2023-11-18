@@ -6,7 +6,7 @@ interface
 
 uses
   Classes, SysUtils, Forms, Controls, ComCtrls, StdCtrls, DateUtils, Graphics,
-  IntegrationUnit, IntegrationDataUnit, AlliesAndEnemiesFrameUnit;
+  IntegrationUnit, IntegrationDataUnit, AlliesAndEnemiesFrameUnit, MonthlyWinrateFrameUnit;
 
 type
 
@@ -17,12 +17,15 @@ type
     ChampionSummaryListView: TListView;
 		ChampionInfoBox: TGroupBox;
 		ChampionInfoTabs: TTabControl;
-		procedure ChampionSummaryListViewSelectItem(Sender: TObject; Item: TListItem; Selected: Boolean);
+    procedure ChampionInfoTabsChange(Sender: TObject);
+    procedure ChampionSummaryListViewSelectItem(Sender: TObject; Item: TListItem; Selected: Boolean);
   private
-    ChampionFrame: TFrame;
+    AlliesAndEnemiesFrame: TAlliesAndEnemiesFrame;
+    MonthlyWinrateFrame: TMonthlyWinrateFrame;
     procedure ClearChampionFrame;
     procedure ReadSummaryInfo;
     procedure ReadChampionInfo(const aChampionName: string);
+    procedure ShowChampionInfoTab;
   protected
     procedure ReceiveSummaryInfo(pSummary: PtrInt);
     procedure ReceiveChampionInfo(pInfo: PtrInt);
@@ -63,18 +66,22 @@ type
 
 procedure TSummaryFrame.ChampionSummaryListViewSelectItem(Sender: TObject; Item: TListItem; Selected: Boolean);
 begin
-  ClearChampionFrame;
   if Selected then
+  begin
+    ClearChampionFrame;
     ReadChampionInfo(Item.Caption);
+  end;
+end;
+
+procedure TSummaryFrame.ChampionInfoTabsChange(Sender: TObject);
+begin
+  ShowChampionInfoTab;
 end;
 
 procedure TSummaryFrame.ClearChampionFrame;
 begin
-  if ChampionFrame <> nil then
-  begin
-    ChampionFrame.Free;
-    ChampionFrame := nil;
-	end;
+  FreeAndNil(AlliesAndEnemiesFrame);
+  FreeAndNil(MonthlyWinrateFrame);
 end;
 
 procedure TSummaryFrame.ReadSummaryInfo;
@@ -95,6 +102,14 @@ begin
   thread := TReadChampionInfoThread.Create(self, aChampionName);
   thread.FreeOnTerminate := true;
   thread.Start;
+end;
+
+procedure TSummaryFrame.ShowChampionInfoTab;
+begin
+  case ChampionInfoTabs.TabIndex of
+    0: if AlliesAndEnemiesFrame <> nil then AlliesAndEnemiesFrame.BringToFront;
+    1: if MonthlyWinrateFrame <> nil then MonthlyWinrateFrame.BringToFront;
+  end;
 end;
 
 procedure TSummaryFrame.ReceiveSummaryInfo(pSummary: {*TSummaryInfo*} PtrInt);
@@ -137,18 +152,23 @@ end;
 procedure TSummaryFrame.ReceiveChampionInfo(pInfo: PtrInt);
 var
   info: TChampionWinRateSummary;
-  alliesAndEnemiesFrame: TAlliesAndEnemiesFrame;
 begin
   info := TChampionWinRateSummary(pInfo);
   if info <> nil then
   begin
     ClearChampionFrame;
-    alliesAndEnemiesFrame := TAlliesAndEnemiesFrame.Create(self);
-    alliesAndEnemiesFrame.ShowInfo(info);
-    ChampionFrame := alliesAndEnemiesFrame;
-    ChampionFrame.Parent := ChampionInfoTabs;
-    ChampionFrame.Align := alClient;
-    ChampionFrame.Color := clDefault;
+    AlliesAndEnemiesFrame := TAlliesAndEnemiesFrame.Create(self);
+    AlliesAndEnemiesFrame.ShowInfo(info);
+    AlliesAndEnemiesFrame.Parent := ChampionInfoTabs;
+    AlliesAndEnemiesFrame.Align := alClient;
+    AlliesAndEnemiesFrame.Color := clDefault;
+
+    MonthlyWinrateFrame := TMonthlyWinrateFrame.Create(self);
+    MonthlyWinrateFrame.Parent := ChampionInfoTabs;
+    MonthlyWinrateFrame.Align := alClient;
+    MonthlyWinrateFrame.ShowInfo(info.WinRateMonths);
+
+    ShowChampionInfoTab;
     ChampionInfoBox.Caption := 'Champion: ' + info.ChampionName;
   end
   else

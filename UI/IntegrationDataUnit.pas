@@ -25,9 +25,14 @@ type
   { TMonthWinRateInfo }
 
   TMonthWinRateInfo = class
+  private
+    function GetMonth: Integer;
+    function GetYear: Integer;
   public
     Key: string;
     Value: TWinRateInfo;
+    property Year: Integer read GetYear;
+    property Month: Integer read GetMonth;
     destructor Destroy; override;
   end;
 
@@ -113,6 +118,16 @@ begin
 end;
 
 { TMonthWinRateInfo }
+
+function TMonthWinRateInfo.GetMonth: Integer;
+begin
+  result := StrToInt(Copy(Key, 6, 2));
+end;
+
+function TMonthWinRateInfo.GetYear: Integer;
+begin
+  result := StrToInt(Copy(Key, 1, 4));
+end;
 
 destructor TMonthWinRateInfo.Destroy;
 begin

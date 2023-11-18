@@ -21,5 +21,12 @@ object MainWindow: TMainWindow
         OnClick = ConfigurationMenuItemClick
       end
     end
+    object WindowMenuItem: TMenuItem
+      Caption = 'Window'
+      object ResetWindowSizeMenuItem: TMenuItem
+        Caption = 'Reset size to default'
+        OnClick = ResetWindowSizeMenuItemClick
+      end
+    end
   end
 end

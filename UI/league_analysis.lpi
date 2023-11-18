@@ -26,6 +26,12 @@
     </RunParams>
     <RequiredPackages>
       <Item>
+        <PackageName Value="FCL"/>
+      </Item>
+      <Item>
+        <PackageName Value="TAChartLazarusPkg"/>
+      </Item>
+      <Item>
         <PackageName Value="LazUtils"/>
       </Item>
       <Item>
@@ -90,6 +96,12 @@
         <IsPartOfProject Value="True"/>
         <ComponentName Value="AlliesAndEnemiesFrame"/>
         <HasResources Value="True"/>
+        <ResourceBaseClass Value="Frame"/>
+      </Unit>
+      <Unit>
+        <Filename Value="MonthlyWinrateFrameUnit.pas"/>
+        <IsPartOfProject Value="True"/>
+        <ComponentName Value="MonthlyWinrateFrame"/>
         <ResourceBaseClass Value="Frame"/>
       </Unit>
     </Units>

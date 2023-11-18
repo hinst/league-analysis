@@ -11,11 +11,11 @@ uses
   athreads,
   {$ENDIF}
   Interfaces, // this includes the LCL widgetset
-  Forms, runtimetypeinfocontrols, MainWindowUnit, ConfigurationFrameUnit,
+  Forms, runtimetypeinfocontrols, tachartlazaruspkg, MainWindowUnit, ConfigurationFrameUnit,
   ConfigurationFileUnit, FilesUnit, JsonUnit, SummaryFrameUnit, IntegrationUnit,
   IntegrationDataUnit, CommonUnit
   { you can add units after this }
-  , SysUtils, AlliesAndEnemiesFrameUnit;
+  , SysUtils, AlliesAndEnemiesFrameUnit, MonthlyWinrateFrameUnit;
 
 {$R *.res}
 
