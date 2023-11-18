@@ -60,7 +60,7 @@ object SummaryFrame: TSummaryFrame
     Width = 1190
     Align = alClient
     BorderSpacing.Around = 5
-    Caption = 'Champion'
+    Caption = 'Champion: select above to view detailed info'
     ClientHeight = 365
     ClientWidth = 1186
     TabOrder = 1

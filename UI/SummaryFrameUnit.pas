@@ -91,6 +91,7 @@ procedure TSummaryFrame.ReadChampionInfo(const aChampionName: string);
 var
   thread: TReadChampionInfoThread;
 begin
+  ChampionInfoBox.Caption := 'Champion: loading info...';
   thread := TReadChampionInfoThread.Create(self, aChampionName);
   thread.FreeOnTerminate := true;
   thread.Start;
@@ -125,9 +126,7 @@ begin
 			end;
 		end
     else
-    begin
       ChampionBox.Caption := 'Your champions: not found';
-		end;
 	end
   else
     ChampionBox.Caption := 'Your champions: error';
@@ -143,13 +142,17 @@ begin
   info := TChampionWinRateSummary(pInfo);
   if info <> nil then
   begin
+    ClearChampionFrame;
     alliesAndEnemiesFrame := TAlliesAndEnemiesFrame.Create(self);
     alliesAndEnemiesFrame.ShowInfo(info);
     ChampionFrame := alliesAndEnemiesFrame;
     ChampionFrame.Parent := ChampionInfoTabs;
     ChampionFrame.Align := alClient;
     ChampionFrame.Color := clDefault;
-  end;
+    ChampionInfoBox.Caption := 'Champion: ' + info.ChampionName;
+  end
+  else
+    ChampionInfoBox.Caption := 'Champion: loading failed';
   info.Free;
 end;
 
