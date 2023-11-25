@@ -1,14 +1,14 @@
 object ConfigurationFrame: TConfigurationFrame
   Left = 0
-  Height = 280
+  Height = 700
   Top = 0
-  Width = 317
-  ClientHeight = 280
-  ClientWidth = 317
+  Width = 1200
+  ClientHeight = 700
+  ClientWidth = 1200
   OnEnter = FrameEnter
   TabOrder = 0
-  DesignLeft = 623
-  DesignTop = 353
+  DesignLeft = 364
+  DesignTop = 169
   object ApiKeyEdit: TLabeledEdit
     Left = 8
     Height = 23

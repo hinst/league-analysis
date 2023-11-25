@@ -102,6 +102,13 @@
         <Filename Value="MonthlyWinrateFrameUnit.pas"/>
         <IsPartOfProject Value="True"/>
         <ComponentName Value="MonthlyWinrateFrame"/>
+        <HasResources Value="True"/>
+        <ResourceBaseClass Value="Frame"/>
+      </Unit>
+      <Unit>
+        <Filename Value="AdviceFrameUnit.pas"/>
+        <IsPartOfProject Value="True"/>
+        <ComponentName Value="AdviceFrame"/>
         <ResourceBaseClass Value="Frame"/>
       </Unit>
     </Units>
