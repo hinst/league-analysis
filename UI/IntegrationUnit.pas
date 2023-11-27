@@ -82,7 +82,7 @@ function TIntegration.ReadAdvice(const allyNames: TStringArray; const enemyNames
 var
   output: string;
 begin
-  RunCommand('deno', ['task', 'run', '--advice=' + StringifyTeamLine(allyNames, enemyNames)], output);
+  RunCommand('deno', ['task', 'run', '--advice=' + StringifyTeamLine(allyNames, enemyNames), '--json'], output);
   WriteLn(output);
 end;
 

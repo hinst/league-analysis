@@ -109,6 +109,7 @@
         <Filename Value="AdviceFrameUnit.pas"/>
         <IsPartOfProject Value="True"/>
         <ComponentName Value="AdviceFrame"/>
+        <HasResources Value="True"/>
         <ResourceBaseClass Value="Frame"/>
       </Unit>
       <Unit>

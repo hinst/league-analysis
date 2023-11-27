@@ -104,11 +104,14 @@ type
 
   TChampionChanceAdviceList = specialize TFPGObjectList<TChampionChanceAdvice>;
 
+  { TTeamChanceAdvice }
+
   TTeamChanceAdvice = class
   public
     ChampionName: string;
     TotalWinRate: TWinRateInfo;
     Champions: TChampionChanceAdviceList;
+    procedure ReadFromJson(data: TJSONObject);
   end;
 
   TTeamChanceAdviceList = specialize TFPGObjectList<TTeamChanceAdvice>;
@@ -290,6 +293,14 @@ begin
   end
   else
     result := nil;
+end;
+
+{ TTeamChanceAdvice }
+
+procedure TTeamChanceAdvice.ReadFromJson(data: TJSONObject);
+begin
+  ChampionName := data.Get('championName', '');
+  TotalWinRate := TWinRateInfo;
 end;
 
 end.
