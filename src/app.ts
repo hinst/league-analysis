@@ -240,8 +240,8 @@ export class App {
         return response.json();
     }
 
-    private printAdvice(adviceQuery: string) {
-        const champions = adviceQuery.split(',');
+    private queryAdvice(teamQuery: string) {
+        const champions = teamQuery.split(',');
         const allMatches = Object.values(this.matchInfoMap);
         const allChampions = Object.keys(findChampions(allMatches));
         const allies = champions
@@ -273,10 +273,18 @@ export class App {
             return advice;
         });
         advices.sort((a, b) => (b.totalWinRate.winRate || 0) - (a.totalWinRate.winRate || 0));
-        for (const advice of advices) {
-            console.log(advice.championName + ' ' + advice.totalWinRate.toString());
-            for (const champion of advice.champions)
-                console.log('  ' + champion.championName + ' ' + champion.winRate.toString());
-        }
+        return advices;
+    }
+
+    private printAdvice(adviceQuery: string) {
+        const advices = this.queryAdvice(adviceQuery);
+        if (this.jsonOutputEnabled)
+            console.log(JSON.stringify(advices, null, '\t'));
+        else
+            for (const advice of advices) {
+                console.log(advice.championName + ' ' + advice.totalWinRate.toString());
+                for (const champion of advice.champions)
+                    console.log('  ' + champion.championName + ' ' + champion.winRate.toString());
+            }
     }
 }
