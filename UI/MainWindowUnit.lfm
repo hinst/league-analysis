@@ -11,7 +11,7 @@ object MainWindow: TMainWindow
     Left = 24
     Top = 8
     object FileMenuItem: TMenuItem
-      Caption = 'File'
+      Caption = 'Page'
       object SummaryMenuItem: TMenuItem
         Caption = 'Summary'
         OnClick = SummaryMenuItemClick
@@ -19,6 +19,10 @@ object MainWindow: TMainWindow
       object ConfigurationMenuItem: TMenuItem
         Caption = 'Configuration'
         OnClick = ConfigurationMenuItemClick
+      end
+      object AdviceMenuItem: TMenuItem
+        Caption = 'Advice'
+        OnClick = AdviceMenuItemClick
       end
     end
     object WindowMenuItem: TMenuItem

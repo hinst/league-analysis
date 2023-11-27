@@ -15,9 +15,32 @@ type
   public
     function ReadSummary: TSummaryInfo;
     function ReadChampion(const championName: string): TChampionWinRateSummary;
+    function ReadAdvice(const allyNames: TStringArray; const enemyNames: TStringArray): TTeamChanceAdviceList;
   end;
 
 implementation
+
+function StringifyChampionNames(championNames: TStringArray): string;
+var
+  i: Integer;
+  trimmedName: string;
+begin
+  result := '';
+  for i := 0 to Length(championNames) - 1 do
+  begin
+    trimmedName := championNames[i].Trim;
+    if trimmedName.Length > 0 then
+      result := result + '+' + trimmedName + ',';
+  end;
+end;
+
+function StringifyTeamLine(allyNames: TStringArray; enemyNames: TStringArray): string;
+begin
+  result := StringifyChampionNames(allyNames) + StringifyChampionNames(enemyNames);
+  if result.EndsWith(',') then
+    result := result.Substring(0, result.Length - 1);
+end;
+
 
 { TIntegration }
 
@@ -53,6 +76,14 @@ begin
   else
     result := nil;
   data.Free;
+end;
+
+function TIntegration.ReadAdvice(const allyNames: TStringArray; const enemyNames: TStringArray): TTeamChanceAdviceList;
+var
+  output: string;
+begin
+  RunCommand('deno', ['task', 'run', '--advice=' + StringifyTeamLine(allyNames, enemyNames)], output);
+  WriteLn(output);
 end;
 
 end.

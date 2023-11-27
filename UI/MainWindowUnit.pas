@@ -6,7 +6,7 @@ interface
 
 uses
   Classes, SysUtils, Forms, Controls, Graphics, Dialogs, ComCtrls, Menus,
-  RTTICtrls, ConfigurationFrameUnit, SummaryFrameUnit;
+  RTTICtrls, ConfigurationFrameUnit, SummaryFrameUnit, AdviceFrameUnit;
 
 type
 
@@ -16,9 +16,11 @@ type
     MainMenu1: TMainMenu;
     FileMenuItem: TMenuItem;
     ConfigurationMenuItem: TMenuItem;
+    AdviceMenuItem: TMenuItem;
     ResetWindowSizeMenuItem: TMenuItem;
     WindowMenuItem: TMenuItem;
     SummaryMenuItem: TMenuItem;
+    procedure AdviceMenuItemClick(Sender: TObject);
     procedure ConfigurationMenuItemClick(Sender: TObject);
     procedure FormCreate(Sender: TObject);
     procedure ResetWindowSizeMenuItemClick(Sender: TObject);
@@ -43,6 +45,12 @@ procedure TMainWindow.ConfigurationMenuItemClick(Sender: TObject);
 begin
   ClearFrame;
   ActivateFrame(TConfigurationFrame.Create(self));
+end;
+
+procedure TMainWindow.AdviceMenuItemClick(Sender: TObject);
+begin
+  ClearFrame;
+  ActivateFrame(TAdviceFrame.Create(self));
 end;
 
 procedure TMainWindow.FormCreate(Sender: TObject);

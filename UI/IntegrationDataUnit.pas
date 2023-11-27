@@ -93,6 +93,26 @@ type
     class function ReadMonthsWinRate(data: TJSONObject): TMonthWinRateInfoList;
 	end;
 
+  TTeam = (Enemy := -1, Ally := 1);
+
+  TChampionChanceAdvice = class
+  public
+    ChampionName: string;
+    Team: TTeam;
+    WinRate: TWinRateInfo;
+  end;
+
+  TChampionChanceAdviceList = specialize TFPGObjectList<TChampionChanceAdvice>;
+
+  TTeamChanceAdvice = class
+  public
+    ChampionName: string;
+    TotalWinRate: TWinRateInfo;
+    Champions: TChampionChanceAdviceList;
+  end;
+
+  TTeamChanceAdviceList = specialize TFPGObjectList<TTeamChanceAdvice>;
+
 implementation
 
 { TWinRateInfo }
