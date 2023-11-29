@@ -14,6 +14,7 @@ type
 
   TConfigurationFrame = class(TFrame)
     ApiKeyEdit: TLabeledEdit;
+    UpdateLabel: TLabel;
     UpdateButton: TBitBtn;
     ConfigurationBox: TGroupBox;
     UpdateResultMemo: TMemo;

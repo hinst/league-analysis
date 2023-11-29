@@ -14,7 +14,7 @@ object ConfigurationFrame: TConfigurationFrame
     Height = 168
     Top = 8
     Width = 329
-    Caption = 'ConfigurationBox'
+    Caption = 'Configuration'
     ClientHeight = 148
     ClientWidth = 325
     TabOrder = 0
@@ -148,14 +148,13 @@ object ConfigurationFrame: TConfigurationFrame
     Height = 217
     Top = 184
     Width = 329
-    Caption = 'UpdateBox'
+    Caption = 'Update match history'
     ClientHeight = 197
     ClientWidth = 325
     TabOrder = 1
     object UpdateButton: TBitBtn
       Left = 208
       Height = 30
-      Hint = 'Load latest match history entries from RIOT API'
       Top = 8
       Width = 103
       Caption = 'Update'
@@ -204,6 +203,15 @@ object ConfigurationFrame: TConfigurationFrame
       Top = 48
       Width = 295
       TabOrder = 1
+    end
+    object UpdateLabel: TLabel
+      Left = 16
+      Height = 31
+      Top = 8
+      Width = 184
+      AutoSize = False
+      Caption = 'Read latest match history from RIOT API and store it locally'
+      WordWrap = True
     end
   end
 end
