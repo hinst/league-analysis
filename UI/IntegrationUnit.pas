@@ -16,6 +16,7 @@ type
     function ReadSummary: TSummaryInfo;
     function ReadChampion(const championName: string): TChampionWinRateSummary;
     function ReadAdvice(const allyNames: TStringArray; const enemyNames: TStringArray): TTeamChanceAdviceList;
+    function Update(out output: string): boolean;
   end;
 
 implementation
@@ -86,6 +87,11 @@ begin
   data := GetJSON(output);
   result := TTeamChanceAdviceList.ReadFromJson(data as TJSONArray);
   FreeAndNil(data);
+end;
+
+function TIntegration.Update(out output: string): boolean;
+begin
+  result := RunCommand('deno', ['task', 'run', '--update'], output);
 end;
 
 end.
