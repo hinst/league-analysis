@@ -35,9 +35,11 @@ type
     function GetEnemyChampionNames: TStringArray;
     procedure RefreshIfNecessary;
     procedure Refresh;
+    procedure ClearEdits;
   public
     property AllyChampionNames: TStringArray read GetAllyChampionNames;
     property EnemyChampionNames: TStringArray read GetEnemyChampionNames;
+    procedure AfterConstruction; override;
   end;
 
 implementation
@@ -73,11 +75,15 @@ end;
 
 procedure TAdviceFrame.RefreshIfNecessary;
 var
-  needChange: boolean;
+  allEmpty: Boolean;
+  needChange: Boolean;
 begin
+  allEmpty := CheckArrayEmpty(AllyChampionNames) and CheckArrayEmpty(EnemyChampionNames);
   needChange := not CheckArraysEqual(LatestAllyChampionNames, AllyChampionNames) or
     not CheckArraysEqual(LatestEnemyChampionNames, EnemyChampionNames);
-  if needChange then
+  if allEmpty then
+    ChancesStringGrid.Clear
+  else if needChange then
     Refresh;
 end;
 
@@ -94,6 +100,26 @@ begin
   integration := TIntegration.Create;
   integration.ReadAdvice(allyChampionNamesLocal, enemyChampionNamesLocal);
   integration.Free;
+end;
+
+procedure TAdviceFrame.ClearEdits;
+begin
+  AllyEdit0.Text := '';
+  AllyEdit1.Text := '';
+  AllyEdit2.Text := '';
+  AllyEdit3.Text := '';
+  AllyEdit4.Text := '';
+  FoeEdit0.Text := '';
+  FoeEdit1.Text := '';
+  FoeEdit2.Text := '';
+  FoeEdit3.Text := '';
+  FoeEdit4.Text := '';
+end;
+
+procedure TAdviceFrame.AfterConstruction;
+begin
+  inherited AfterConstruction;
+  ClearEdits;
 end;
 
 end.
