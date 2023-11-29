@@ -20,6 +20,7 @@ begin
   stream := TMemoryStream.Create;
   stream.LoadFromFile(filePath);
   result := ReadTextFromStream(stream);
+  FreeAndNil(stream);
 end;
 
 function ReadTextFromStream(stream: TStream): string;
