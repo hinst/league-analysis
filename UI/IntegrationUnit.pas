@@ -20,7 +20,7 @@ type
 
 implementation
 
-function StringifyChampionNames(championNames: TStringArray): string;
+function StringifyChampionNames(team: TTeam; championNames: TStringArray): string;
 var
   i: Integer;
   trimmedName: string;
@@ -30,17 +30,16 @@ begin
   begin
     trimmedName := championNames[i].Trim;
     if trimmedName.Length > 0 then
-      result := result + '+' + trimmedName + ',';
+      result := result + GetTeamSign(team) + trimmedName + ',';
   end;
 end;
 
 function StringifyTeamLine(allyNames: TStringArray; enemyNames: TStringArray): string;
 begin
-  result := StringifyChampionNames(allyNames) + StringifyChampionNames(enemyNames);
+  result := StringifyChampionNames(AllyTeam, allyNames) + StringifyChampionNames(EnemyTeam, enemyNames);
   if result.EndsWith(',') then
     result := result.Substring(0, result.Length - 1);
 end;
-
 
 { TIntegration }
 
@@ -58,7 +57,7 @@ begin
   end
   else
     result := nil;
-  data.Free;
+  FreeAndNil(data);
 end;
 
 function TIntegration.ReadChampion(const championName: string): TChampionWinRateSummary;
@@ -75,15 +74,18 @@ begin
   end
   else
     result := nil;
-  data.Free;
+  FreeAndNil(data);
 end;
 
 function TIntegration.ReadAdvice(const allyNames: TStringArray; const enemyNames: TStringArray): TTeamChanceAdviceList;
 var
   output: string;
+  data: TJSONData;
 begin
   RunCommand('deno', ['task', 'run', '--advice=' + StringifyTeamLine(allyNames, enemyNames), '--json'], output);
-  WriteLn(output);
+  data := GetJSON(output);
+  result := TTeamChanceAdviceList.ReadFromJson(data as TJSONArray);
+  FreeAndNil(data);
 end;
 
 end.

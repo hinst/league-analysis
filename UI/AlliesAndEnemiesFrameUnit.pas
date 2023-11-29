@@ -5,7 +5,7 @@ unit AlliesAndEnemiesFrameUnit;
 interface
 
 uses
-  Classes, SysUtils, Forms, Controls, StdCtrls, ComCtrls, IntegrationDataUnit, CommonUnit;
+  Classes, SysUtils, Forms, Controls, StdCtrls, ComCtrls, IntegrationDataUnit, StringUnit;
 
 type
 

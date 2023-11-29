@@ -12,7 +12,7 @@ uses
   {$ENDIF}
   Interfaces, // this includes the LCL widgetset
   Forms, runtimetypeinfocontrols, tachartlazaruspkg, MainWindowUnit, ConfigurationFrameUnit,
-  ConfigurationFileUnit, FilesUnit, JsonUnit, SummaryFrameUnit, IntegrationUnit,
+  ConfigurationFileUnit, FilesUnit, SummaryFrameUnit, IntegrationUnit,
   IntegrationDataUnit, CommonUnit
   { you can add units after this }
   , SysUtils, AlliesAndEnemiesFrameUnit, MonthlyWinrateFrameUnit, AdviceFrameUnit, StringUnit;

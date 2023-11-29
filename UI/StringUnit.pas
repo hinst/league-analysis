@@ -9,6 +9,7 @@ uses
 
 function CheckArraysEqual(const a1: TStringArray; const a2: TStringArray): Boolean;
 function CheckArrayEmpty(const a: TStringArray): Boolean;
+function FormatPercent(value: Double): string;
 
 implementation
 
@@ -32,6 +33,11 @@ begin
     if s <> '' then
       Exit(False);
   Result := True;
+end;
+
+function FormatPercent(value: Double): string;
+begin
+  result := FloatToStrF(value * 100, ffFixed, 0, 1);
 end;
 
 end.

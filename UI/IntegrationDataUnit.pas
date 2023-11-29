@@ -5,7 +5,7 @@ unit IntegrationDataUnit;
 interface
 
 uses
-  Classes, SysUtils, fpJson, fgl;
+  Classes, SysUtils, fpJson, fgl, StringUnit;
 
 type
 
@@ -20,6 +20,7 @@ type
     property WinRate: Double read GetWinRate;
     procedure ReadFromJson(jsonObject: TJSONObject);
     class function CreateFromJson(jsonObject: TJSONObject): TWinRateInfo;
+    function ToString: string; override;
 	end;
 
   { TMonthWinRateInfo }
@@ -93,7 +94,7 @@ type
     class function ReadMonthsWinRate(data: TJSONObject): TMonthWinRateInfoList;
 	end;
 
-  TTeam = (Enemy := -1, Ally := 1);
+  TTeam = (EnemyTeam := -1, AllyTeam := 1);
 
   { TChampionChanceAdvice }
 
@@ -103,6 +104,7 @@ type
     Team: TTeam;
     WinRate: TWinRateInfo;
     procedure ReadFromJson(data: TJSONObject);
+    destructor Destroy; override;
   end;
 
   TChampionChanceAdviceList = specialize TFPGObjectList<TChampionChanceAdvice>;
@@ -118,9 +120,26 @@ type
     destructor Destroy; override;
   end;
 
-  TTeamChanceAdviceList = specialize TFPGObjectList<TTeamChanceAdvice>;
+  { TTeamChanceAdviceList }
+
+  TTeamChanceAdviceList = class(specialize TFPGObjectList<TTeamChanceAdvice>)
+    class function ReadFromJson(jsonArray: TJSONArray): TTeamChanceAdviceList;
+  end;
+
+  EIntegrationDataFormat = class(Exception)
+  end;
+
+function GetTeamSign(team: TTeam): string;
 
 implementation
+
+function GetTeamSign(team: TTeam): string;
+begin
+  case team of
+    EnemyTeam: result := '-';
+    AllyTeam: result := '+';
+  end;
+end;
 
 { TWinRateInfo }
 
@@ -140,8 +159,15 @@ end;
 
 class function TWinRateInfo.CreateFromJson(jsonObject: TJSONObject): TWinRateInfo;
 begin
+  if jsonObject = nil then
+    raise EAccessViolation.Create('jsonObject is required');
   result := TWinRateInfo.Create;
   result.ReadFromJson(jsonObject);
+end;
+
+function TWinRateInfo.ToString: string;
+begin
+  result := FormatPercent(WinRate) + ' [' + IntToStr(VictoryCount) + '/' + IntToStr(MatchCount) + ']';
 end;
 
 { TMonthWinRateInfo }
@@ -291,7 +317,9 @@ begin
     begin
       monthWinRateInfo := TMonthWinRateInfo.Create;
       monthWinRateInfo.Key := data.Names[i];
-      monthWinRateInfo.Value := TWinRateInfo.CreateFromJson(data.Elements[monthWinRateInfo.Key] as TJsonObject);
+      monthWinRateInfo.Value := TWinRateInfo.CreateFromJson(
+        data.Elements[monthWinRateInfo.Key] as TJsonObject
+      );
       result.Add(monthWinRateInfo);
     end;
   end
@@ -303,7 +331,15 @@ end;
 
 procedure TChampionChanceAdvice.ReadFromJson(data: TJSONObject);
 begin
+  ChampionName := data.Get('championName', '');
+  Team := TTeam(data.Get('team', Integer(0)));
+  WinRate := TWinRateInfo.CreateFromJson(data.Get('winRate', TJSONObject(nil)));
+end;
 
+destructor TChampionChanceAdvice.Destroy;
+begin
+  FreeAndNil(WinRate);
+  inherited Destroy;
 end;
 
 { TTeamChanceAdvice }
@@ -315,7 +351,7 @@ var
   championChanceAdvice: TChampionChanceAdvice;
 begin
   ChampionName := data.Get('championName', '');
-  TotalWinRate := TWinRateInfo.CreateFromJson(data.Get('totalWinRage', TJSONObject(nil)));
+  TotalWinRate := TWinRateInfo.CreateFromJson(data.Get('totalWinRate', TJSONObject(nil)));
   championArray := data.Get('champions', TJSONArray(nil));
   if championArray <> nil then
   begin
@@ -335,6 +371,23 @@ begin
   FreeAndNil(TotalWinRate);
   FreeAndNil(Champions);
   inherited Destroy;
+end;
+
+{ TTeamChanceAdviceList }
+
+class function TTeamChanceAdviceList.ReadFromJson(jsonArray: TJSONArray): TTeamChanceAdviceList;
+var
+  jsonItem: TJSONEnum;
+  teamChanceAdvice: TTeamChanceAdvice;
+begin
+  result := TTeamChanceAdviceList.Create;
+  result.Capacity := jsonArray.Count;
+  for jsonItem in jsonArray do
+  begin
+    teamChanceAdvice := TTeamChanceAdvice.Create;
+    teamChanceAdvice.ReadFromJson(jsonItem.Value as TJSONObject);
+    result.Add(teamChanceAdvice);
+  end;
 end;
 
 end.
