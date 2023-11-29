@@ -21,7 +21,7 @@ type
     procedure FrameEnter(Sender: TObject);
     procedure RefreshApiKeyButtonClick(Sender: TObject);
   private
-    ConfigurationFileUnit: TConfigurationFile;
+    ConfigurationFile: TConfigurationFile;
     procedure ReadConfigurationFile;
     procedure WriteConfigurationFile;
   public
@@ -52,34 +52,30 @@ end;
 
 procedure TConfigurationFrame.ReadConfigurationFile;
 begin
-  ConfigurationFileUnit.Read;
-  GameNameEdit.Text := ConfigurationFileUnit.GameName;
-  TagLineEdit.Text := ConfigurationFileUnit.TagLine;
-  ApiKeyEdit.Text := ConfigurationFileUnit.ApiKey;
+  ConfigurationFile.Read;
+  GameNameEdit.Text := ConfigurationFile.GameName;
+  TagLineEdit.Text := ConfigurationFile.TagLine;
+  ApiKeyEdit.Text := ConfigurationFile.ApiKey;
 end;
 
 procedure TConfigurationFrame.WriteConfigurationFile;
 begin
-  ConfigurationFileUnit.GameName := GameNameEdit.Text;
-  ConfigurationFileUnit.TagLine := TagLineEdit.Text;
-  ConfigurationFileUnit.ApiKey := ApiKeyEdit.Text;
-  ConfigurationFileUnit.Write;
+  ConfigurationFile.GameName := GameNameEdit.Text;
+  ConfigurationFile.TagLine := TagLineEdit.Text;
+  ConfigurationFile.ApiKey := ApiKeyEdit.Text;
+  ConfigurationFile.Write;
 end;
 
 constructor TConfigurationFrame.Create(theOwner: TComponent);
 begin
   inherited Create(theOwner);
-  ConfigurationFileUnit := TConfigurationFile.Create;
+  ConfigurationFile := TConfigurationFile.Create;
   ReadConfigurationFile;
 end;
 
 destructor TConfigurationFrame.Destroy;
 begin
-  if ConfigurationFileUnit <> nil then
-  begin
-     ConfigurationFileUnit.Free;
-     ConfigurationFileUnit := nil;
-  end;
+  FreeAndNil(ConfigurationFile);
   inherited Destroy;
 end;
 
