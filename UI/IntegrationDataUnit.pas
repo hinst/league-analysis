@@ -95,11 +95,14 @@ type
 
   TTeam = (Enemy := -1, Ally := 1);
 
+  { TChampionChanceAdvice }
+
   TChampionChanceAdvice = class
   public
     ChampionName: string;
     Team: TTeam;
     WinRate: TWinRateInfo;
+    procedure ReadFromJson(data: TJSONObject);
   end;
 
   TChampionChanceAdviceList = specialize TFPGObjectList<TChampionChanceAdvice>;
@@ -112,6 +115,7 @@ type
     TotalWinRate: TWinRateInfo;
     Champions: TChampionChanceAdviceList;
     procedure ReadFromJson(data: TJSONObject);
+    destructor Destroy; override;
   end;
 
   TTeamChanceAdviceList = specialize TFPGObjectList<TTeamChanceAdvice>;
@@ -295,12 +299,42 @@ begin
     result := nil;
 end;
 
+{ TChampionChanceAdvice }
+
+procedure TChampionChanceAdvice.ReadFromJson(data: TJSONObject);
+begin
+
+end;
+
 { TTeamChanceAdvice }
 
 procedure TTeamChanceAdvice.ReadFromJson(data: TJSONObject);
+var
+  championArray: TJSONArray;
+  championItem: TJSONEnum;
+  championChanceAdvice: TChampionChanceAdvice;
 begin
   ChampionName := data.Get('championName', '');
-  TotalWinRate := TWinRateInfo;
+  TotalWinRate := TWinRateInfo.CreateFromJson(data.Get('totalWinRage', TJSONObject(nil)));
+  championArray := data.Get('champions', TJSONArray(nil));
+  if championArray <> nil then
+  begin
+    Champions := TChampionChanceAdviceList.Create();
+    Champions.Capacity := championArray.Count;
+    for championItem in championArray do
+    begin
+      championChanceAdvice := TChampionChanceAdvice.Create();
+      championChanceAdvice.ReadFromJson(championItem.Value as TJSONObject);
+      Champions.Add(championChanceAdvice);
+    end;
+  end;
+end;
+
+destructor TTeamChanceAdvice.Destroy;
+begin
+  FreeAndNil(TotalWinRate);
+  FreeAndNil(Champions);
+  inherited Destroy;
 end;
 
 end.
