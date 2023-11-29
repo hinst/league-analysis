@@ -4,11 +4,40 @@ object MainWindow: TMainWindow
   Top = 207
   Width = 1200
   Caption = 'League Analysis'
+  ClientHeight = 680
+  ClientWidth = 1200
   Menu = MainMenu1
   OnCreate = FormCreate
   LCLVersion = '2.2.0.4'
+  object SummaryButton: TBitBtn
+    Left = 8
+    Height = 30
+    Top = 8
+    Width = 96
+    Caption = 'Summary'
+    OnClick = SummaryButtonClick
+    TabOrder = 0
+  end
+  object ConfigurationButton: TBitBtn
+    Left = 8
+    Height = 30
+    Top = 48
+    Width = 96
+    Caption = 'Configuration'
+    OnClick = ConfigurationButtonClick
+    TabOrder = 1
+  end
+  object AdviceButton: TBitBtn
+    Left = 8
+    Height = 30
+    Top = 88
+    Width = 96
+    Caption = 'Advice'
+    OnClick = AdviceButtonClick
+    TabOrder = 2
+  end
   object MainMenu1: TMainMenu
-    Left = 24
+    Left = 672
     Top = 8
     object FileMenuItem: TMenuItem
       Caption = 'Page'
