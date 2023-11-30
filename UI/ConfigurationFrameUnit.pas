@@ -6,7 +6,7 @@ interface
 
 uses
   Classes, SysUtils, Forms, Controls, ComCtrls, ExtCtrls, Buttons, LCLIntf, StdCtrls,
-  ConfigurationFileUnit, IntegrationUnit;
+  ConfigurationFileUnit, IntegrationUnit, CommonUnit;
 
 type
 
@@ -112,12 +112,12 @@ end;
 
 procedure TConfigurationFrame.BeforeDestruction;
 begin
-  inherited BeforeDestruction;
   while UpdateThread <> nil do
   begin
     Application.ProcessMessages;
-    Sleep(100);
+    Sleep(SleepWhenExitingMilliseconds);
   end;
+  inherited BeforeDestruction;
 end;
 
 destructor TConfigurationFrame.Destroy;

@@ -6,7 +6,7 @@ interface
 
 uses
   Classes, SysUtils, Forms, Controls, StdCtrls, ExtCtrls, Grids, fgl, IntegrationUnit,
-  IntegrationDataUnit, StringUnit;
+  IntegrationDataUnit, StringUnit, CommonUnit;
 
 type
 
@@ -38,7 +38,6 @@ type
     procedure RefreshIfNecessary;
     procedure Refresh;
     procedure ClearEdits;
-    procedure ReceiveAdviceListFromThread(adviceList: PtrInt);
     procedure ReceiveAdviceList(adviceList: TTeamChanceAdviceList);
   public
     property AllyChampionNames: TStringArray read GetAllyChampionNames;
@@ -63,6 +62,8 @@ type
     Owner: TAdviceFrame;
     AllyChampionNames: TStringArray;
     EnemyChampionNames: TStringArray;
+    AdviceList: TTeamChanceAdviceList;
+    procedure ShowAdvice;
   end;
 
 { TAdviceFrame }
@@ -134,15 +135,6 @@ begin
   FoeEdit4.Text := '';
 end;
 
-procedure TAdviceFrame.ReceiveAdviceListFromThread(adviceList: PtrInt);
-begin
-  if adviceList <> 0 then
-  begin
-    ReceiveAdviceList(TObject(adviceList) as TTeamChanceAdviceList);
-    FreeAndNil(adviceList);
-  end;
-end;
-
 procedure TAdviceFrame.ReceiveAdviceList(adviceList: TTeamChanceAdviceList);
 var
   teamChanceAdvice: TTeamChanceAdvice;
@@ -190,7 +182,8 @@ begin
     Threads.UnlockList;
     if threadCount = 0 then
       break;
-    Sleep(100);
+    Sleep(SleepWhenExitingMilliseconds);
+    Application.ProcessMessages;
   end;
   FreeAndNil(Threads);
   inherited BeforeDestruction;
@@ -210,13 +203,18 @@ end;
 procedure TReadAdviceThread.Execute;
 var
   integration: TIntegration;
-  adviceList: TTeamChanceAdviceList;
 begin
   integration := TIntegration.Create;
-  adviceList := integration.ReadAdvice(AllyChampionNames, EnemyChampionNames);
-  Application.QueueAsyncCall(@Owner.ReceiveAdviceListFromThread, PtrInt(adviceList));
+  AdviceList := integration.ReadAdvice(AllyChampionNames, EnemyChampionNames);
   integration.Free;
+  Synchronize(@ShowAdvice);
+  FreeAndNil(AdviceList);
   Owner.Threads.Remove(self);
+end;
+
+procedure TReadAdviceThread.ShowAdvice;
+begin
+  Owner.ReceiveAdviceList(AdviceList);
 end;
 
 end.
