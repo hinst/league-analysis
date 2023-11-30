@@ -114,7 +114,10 @@ procedure TConfigurationFrame.BeforeDestruction;
 begin
   inherited BeforeDestruction;
   while UpdateThread <> nil do
+  begin
+    Application.ProcessMessages;
     Sleep(100);
+  end;
 end;
 
 destructor TConfigurationFrame.Destroy;
