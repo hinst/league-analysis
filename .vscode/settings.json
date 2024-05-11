@@ -4,5 +4,7 @@
     "deno.unstable": false,
     "cSpell.words": [
         "puuid"
-    ]
+    ],
+    "typescript.validate.enable": false,
+    "javascript.validate.enable": false,
 }
