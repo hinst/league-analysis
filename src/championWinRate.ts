@@ -16,11 +16,14 @@ export class WinRateInfo {
         return '' + this.victoryCount + '/' + this.matchCount + '=' + formatPercent(this.winRate);
     }
 
-    static getWinRate(records: MatchInfoRecord[], userId: string, championName: string): WinRateInfo {
+    static getWinRate(records: MatchInfoRecord[], userId: string, championName?: string): WinRateInfo {
         let matchCount = 0;
         let victoryCount = 0;
+        function checkParticipant(p: MatchParticipantInfo) {
+            return p.puuid === userId && (!championName || p.championName === championName);
+        }
         for (const record of records) {
-            const participant = record.info.participants.find(p => p.puuid === userId && p.championName === championName);
+            const participant = record.info.participants.find(checkParticipant);
             if (participant) {
                 matchCount += 1;
                 if (participant.win)

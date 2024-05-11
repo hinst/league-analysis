@@ -16,13 +16,15 @@ export class App {
     private matchInfoMap: MatchInfoMap = {};
     private matchInfoMapFileName = 'matchInfoMap.json';
     private static readonly SIGNIFICANT_STATISTIC_THRESHOLD = 10;
+    private static readonly RELEVANT_STATISTIC_AGE = 1000 * 60 * 60 * 24 * 365;
 
     constructor(
         private updateEnabled: boolean,
         private printSummaryEnabled: boolean,
-        private championNameInput?: string,
-        private adviceQuery?: string,
-        private jsonOutputEnabled?: boolean,
+        private championNameInput: string | undefined,
+        private adviceQuery: string | undefined,
+        private jsonOutputEnabled: boolean | undefined,
+        private timeOfDayQuery: string | undefined,
     ) {
     }
 
@@ -48,6 +50,8 @@ export class App {
             this.printChampionSummary(this.championNameInput);
         if (this.adviceQuery)
             this.printAdvice(this.adviceQuery);
+        if (this.timeOfDayQuery)
+            this.printTimeOfDayAdvice(this.timeOfDayQuery);
     }
 
     private async updateMatchInfoMap() {
@@ -292,5 +296,37 @@ export class App {
                 for (const champion of advice.champions)
                     console.log('  ' + champion.championName + ' ' + champion.winRate.toString());
             }
+    }
+
+    private queryTimeOfDayAdvice(query: string) {
+        const allMatches = Object.values(this.matchInfoMap);
+        allMatches.sort((a, b) => a.info.gameCreation - b.info.gameCreation);
+        const hourlyRecords: Record<number, MatchInfoRecord[]> = {};
+        const hourlyWinRates: Record<number, WinRateInfo> = {};
+        for (const match of allMatches) {
+            const date = new Date(match.info.gameCreation);
+            const hour = date.getHours();
+            let records = hourlyRecords[hour];
+            if (null == records) {
+                records = [];
+                hourlyRecords[hour] = records;
+            }
+            records.push(match);
+        }
+        for (const hour in hourlyRecords)
+            hourlyWinRates[hour] = WinRateInfo.getWinRate(hourlyRecords[hour], this.userId);
+        for (let hour = 0; hour < 24; ++hour) {
+            const winRate = hourlyWinRates[hour];
+            if (winRate) {
+                let infoText = winRate.toString();
+                if (winRate.matchCount > App.SIGNIFICANT_STATISTIC_THRESHOLD)
+                    infoText += ' ok';
+                console.log(hour, infoText);
+            }
+        }
+    }
+
+    private printTimeOfDayAdvice(query: string) {
+        this.queryTimeOfDayAdvice(query);
     }
 }
