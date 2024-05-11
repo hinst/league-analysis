@@ -7,7 +7,7 @@ import { ChampionWinRateInfo, ChampionWinRateSummary, Team, WinRateInfo } from '
 import { formatPercent } from './format.ts';
 import { sortObjectFieldsByName, sortObjectFieldsByNumber } from './object.ts';
 import { TeamChanceAdvice } from './teamChanceAdvice.ts';
-import { ErrorChampionNotFound } from "./error.ts";
+import { ErrorChampionNotFound } from './error.ts';
 
 export class App {
     private apiUrl = 'https://europe.api.riotgames.com';
@@ -175,8 +175,14 @@ export class App {
         for (const dataFile of dataFiles)
             if (dataFile.name === this.matchInfoMapFileName)
                 matchInfoMapExists = true;
-        if (matchInfoMapExists)
+        if (matchInfoMapExists) {
             this.matchInfoMap = JSON.parse(Deno.readTextFileSync('./data/' + this.matchInfoMapFileName));
+            for (const key in this.matchInfoMap)
+                if (!this.matchInfoMap[key].info.gameCreation)
+                    delete this.matchInfoMap[key];
+                else if (new Date().getTime() - this.matchInfoMap[key].info.gameCreation > App.RELEVANT_STATISTIC_AGE)
+                    delete this.matchInfoMap[key];
+        }
     }
 
     private writeMatchInfoMap() {
