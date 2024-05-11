@@ -299,30 +299,41 @@ export class App {
     }
 
     private queryTimeOfDayAdvice(query: string) {
+        let championNames = query.split(',');
         const allMatches = Object.values(this.matchInfoMap);
         allMatches.sort((a, b) => a.info.gameCreation - b.info.gameCreation);
-        const hourlyRecords: Record<number, MatchInfoRecord[]> = {};
-        const hourlyWinRates: Record<number, WinRateInfo> = {};
-        for (const match of allMatches) {
-            const date = new Date(match.info.gameCreation);
-            const hour = date.getHours();
-            let records = hourlyRecords[hour];
-            if (null == records) {
-                records = [];
-                hourlyRecords[hour] = records;
+        const allChampions = Object.keys(findChampions(allMatches));
+        championNames = championNames.map(name => findByEditingDistance(allChampions, name))
+            .filter(s => s).map(s => s as string);
+        const champions = championNames.length ? championNames : [undefined];
+        for (const champion of champions) {
+            console.log((champion ? champion : 'ALL').toUpperCase());
+            const hourlyRecords: Record<number, MatchInfoRecord[]> = {};
+            const hourlyWinRates: Record<number, WinRateInfo> = {};
+            for (const match of allMatches) {
+                const date = new Date(match.info.gameCreation);
+                const hour = date.getHours();
+                let records = hourlyRecords[hour];
+                if (null == records) {
+                    records = [];
+                    hourlyRecords[hour] = records;
+                }
+                records.push(match);
             }
-            records.push(match);
-        }
-        for (const hour in hourlyRecords)
-            hourlyWinRates[hour] = WinRateInfo.getWinRate(hourlyRecords[hour], this.userId);
-        for (let hour = 0; hour < 24; ++hour) {
-            const winRate = hourlyWinRates[hour];
-            if (winRate) {
-                let infoText = winRate.toString();
-                if (winRate.matchCount > App.SIGNIFICANT_STATISTIC_THRESHOLD)
-                    infoText += ' ok';
-                console.log(hour, infoText);
+            for (const hour in hourlyRecords)
+                hourlyWinRates[hour] = WinRateInfo.getWinRate(hourlyRecords[hour], this.userId, champion);
+            let totalMatchCount = 0;
+            for (let hour = 0; hour < 24; ++hour) {
+                const winRate = hourlyWinRates[hour];
+                if (winRate) {
+                    let infoText = winRate.toString();
+                    if (winRate.matchCount > App.SIGNIFICANT_STATISTIC_THRESHOLD)
+                        infoText += ' ok';
+                    console.log(hour, infoText);
+                    totalMatchCount += winRate.matchCount;
+                }
             }
+            console.log('  total match count: ' + totalMatchCount);
         }
     }
 
