@@ -16,7 +16,7 @@ export class App {
     private matchInfoMap: MatchInfoMap = {};
     private matchInfoMapFileName = 'matchInfoMap.json';
     private static readonly SIGNIFICANT_STATISTIC_THRESHOLD = 10;
-    private static readonly RELEVANT_STATISTIC_AGE = 1000 * 60 * 60 * 24 * 365;
+    private static readonly RELEVANT_STATISTIC_AGE = 1000 * 60 * 60 * 24 * 500;
 
     constructor(
         private updateEnabled: boolean,
